@@ -1,0 +1,2 @@
+# Typgame
+Test je typskills
