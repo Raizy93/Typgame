@@ -866,7 +866,7 @@ class Game {
       ctx.textBaseline = 'middle';
       ctx.shadowBlur   = 25;
       ctx.shadowColor  = '#ffdd00';
-      ctx.fillText(`LEVEL ${this.level}!`, W / 2, H / 2);
+      ctx.fillText(`NIVEAU ${this.level}!`, W / 2, H / 2);
       ctx.restore();
     }
   }
