@@ -13,10 +13,10 @@
 }
 
 :root {
-  --cyan:       #00ffff;
-  --red:        #ff4444;
+  --cyan:       #00ff41;
+  --red:        #ff2244;
   --gold:       #ffcc00;
-  --bg:         #000510;
+  --bg:         #000d00;
   --hud-h:      48px;
   --kb-h:       168px;         /* hoogte mobiel toetsenbord */
   --font:       'Courier New', Courier, monospace;
@@ -53,8 +53,8 @@ html, body {
   align-items: center;
   justify-content: space-between;
   padding: 0 1.25rem;
-  background: rgba(0, 5, 16, 0.82);
-  border-bottom: 1px solid rgba(0, 255, 255, 0.15);
+  background: rgba(0, 13, 0, 0.82);
+  border-bottom: 1px solid rgba(0, 255, 65, 0.15);
   backdrop-filter: blur(4px);
   z-index: 50;
   font-size: 1rem;
@@ -78,13 +78,13 @@ html, body {
 
 #lives-display .life {
   font-size: 1.3rem;
-  color: var(--red);
+  color: var(--cyan);
   transition: color 0.3s, text-shadow 0.3s;
-  text-shadow: 0 0 8px var(--red);
+  text-shadow: 0 0 8px var(--cyan);
 }
 
 #lives-display .life.lost {
-  color: #2a1010;
+  color: #0a1a0a;
   text-shadow: none;
 }
 
@@ -95,7 +95,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 5, 16, 0.93);
+  background: rgba(0, 13, 0, 0.93);
   backdrop-filter: blur(6px);
   z-index: 100;
   transition: opacity 0.3s;
@@ -204,8 +204,8 @@ html, body {
   left: 0;
   right: 0;
   height: var(--kb-h);
-  background: rgba(0, 8, 18, 0.97);
-  border-top: 1px solid rgba(0, 255, 255, 0.15);
+  background: rgba(0, 13, 0, 0.97);
+  border-top: 1px solid rgba(0, 255, 65, 0.15);
   padding: 6px 4px 8px;
   z-index: 50;
   display: flex;
@@ -225,8 +225,8 @@ html, body {
 }
 
 .kb-key {
-  background: rgba(0, 255, 255, 0.07);
-  border: 1px solid rgba(0, 255, 255, 0.2);
+  background: rgba(0, 255, 65, 0.07);
+  border: 1px solid rgba(0, 255, 65, 0.2);
   color: #aaccee;
   font-family: var(--font);
   font-size: clamp(0.7rem, 2.5vw, 0.9rem);

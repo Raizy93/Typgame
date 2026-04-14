@@ -1,58 +1,60 @@
 'use strict';
 
 /**
- * data/words.js
- * Woordenlijsten voor TypGame, gegroepeerd op moeilijkheidsgraad.
- * getWordsForLevel(level) geeft de pool terug die bij een level hoort.
+ * data/words.js – TypGame Cyber Security
+ *
+ * Woordenlijst met cybersecurity-termen, ingedeeld op moeilijkheid.
+ * WordList.getWordsForLevel(level) geeft een pool terug op basis van level:
+ *   level 1-2 → korte woorden (3-5 letters)
+ *   level 3-4 → middellange woorden (4-7 letters)
+ *   level 5+  → alle woorden inclusief lange termen
  */
+
 const WordList = (() => {
-  const easy = [
-    // Nederlands
-    'kat', 'hond', 'zon', 'maan', 'boom', 'dag', 'zee', 'vuur', 'wind', 'land',
-    'luis', 'bal', 'kar', 'net', 'dak', 'rij', 'pit', 'kop', 'tas', 'lat',
-    // Engels (kort)
-    'aim', 'dot', 'fly', 'gun', 'hit', 'jet', 'map', 'orb', 'pod', 'ray',
-    'arc', 'bug', 'cog', 'dex', 'fog', 'hex', 'ion', 'lag', 'mod', 'nab',
-    'fire', 'ship', 'star', 'blue', 'dark', 'fast', 'hero', 'jump', 'nova', 'shot',
-    'zap', 'bolt', 'beam', 'core', 'dive', 'edge', 'flux', 'grid', 'hull', 'icon'
+  const short = [
+    'hack', 'byte', 'port', 'root', 'key',
+    'ssh', 'sql', 'dns', 'ftp', 'vpn',
+    'bug', 'log', 'tor', 'ip', 'mac',
+    'api', 'xss', 'raw', 'net', 'scan',
+    'dos', 'bot', 'hex', 'ssl', 'tls',
   ];
 
   const medium = [
-    // Nederlands
-    'planeet', 'raket', 'komeet', 'nebula', 'meteoor', 'schild', 'vijand',
-    'kogel', 'kanon', 'sector', 'baan', 'ruimte', 'energie', 'turbo',
-    // Engels
-    'galaxy', 'rocket', 'cosmos', 'planet', 'shield', 'laser', 'orbit',
-    'boost', 'pilot', 'enemy', 'score', 'speed', 'dodge', 'blast', 'spawn',
-    'target', 'attack', 'defend', 'arcade', 'pixel', 'cursor', 'sniper',
-    'comet', 'debris', 'engine', 'impact', 'jammer', 'keypad', 'module',
-    'nexus', 'outrun', 'plasma', 'quasar', 'reboot', 'sector', 'thrust',
-    'uplink', 'vector', 'weapon', 'xenon', 'zapper'
+    'virus', 'trojan', 'patch', 'proxy', 'token',
+    'login', 'admin', 'worm', 'flood', 'spoof',
+    'crack', 'brute', 'pivot', 'fuzzy', 'shell',
+    'sniff', 'audit', 'alert', 'block', 'chain',
+    'cipher', 'cookie', 'daemon', 'debug', 'encode',
+    'inject', 'kernel', 'reboot', 'socket', 'tunnel',
   ];
 
   const hard = [
-    // Nederlands
-    'asteroide', 'universum', 'snelheid', 'oneindig', 'verkenner',
-    'ruimteschip', 'melkwegstelsel', 'commandant',
-    // Engels
-    'asteroid', 'explorer', 'universe', 'velocity', 'momentum',
-    'infinity', 'trajectory', 'spaceship', 'commander', 'destroyer',
-    'interceptor', 'vaporize', 'eliminate', 'calculate', 'precision',
-    'overdrive', 'hyperdrive', 'blackhole', 'wormhole', 'satellite',
-    'combatzone', 'warpspeed', 'cyberstrike', 'killswitch', 'laserbeam',
-    'mainframe', 'nanobot', 'overcharge', 'photon', 'quantumdrive'
+    'firewall', 'malware', 'exploit', 'payload', 'botnet',
+    'phishing', 'rootkit', 'sandbox', 'keylog', 'bypass',
+    'backdoor', 'checksum', 'deadlock', 'endpoint', 'gateway',
+    'honeypot', 'intruder', 'jailbreak', 'lockdown', 'monitor',
+    'overflow', 'protocol', 'redirect', 'spoofing', 'traceroute',
+    'zero-day', 'hashcode', 'pentest', 'stealth', 'intrusion',
   ];
 
-  /**
-   * Geeft een gemixte woordpool terug passend bij het huidige level.
-   * @param {number} level
-   * @returns {string[]}
-   */
-  function getWordsForLevel(level) {
-    if (level <= 2) return [...easy, ...medium.slice(0, 10)];
-    if (level <= 4) return [...medium, ...easy.slice(0, 10), ...hard.slice(0, 10)];
-    return [...medium, ...hard];
-  }
+  const expert = [
+    'ransomware', 'cryptojack', 'privilege', 'exfiltrate',
+    'obfuscate', 'shellcode', 'stuxnet', 'darkweb',
+    'mitm-attack', 'bruteforce', 'polymorphic', 'cryptoworm',
+    'persistence', 'sideloading', 'fingerprint', 'eavesdrop',
+  ];
 
-  return { easy, medium, hard, getWordsForLevel };
+  return {
+    /**
+     * Geeft een woordpool terug passend bij het opgegeven level.
+     * @param {number} level
+     * @returns {string[]}
+     */
+    getWordsForLevel(level) {
+      if (level <= 2) return short;
+      if (level <= 4) return [...short, ...medium];
+      if (level <= 6) return [...medium, ...hard];
+      return [...hard, ...expert];
+    }
+  };
 })();

@@ -7,7 +7,7 @@
  *   Utils          – kleine hulpfuncties
  *   Particle       – enkelvoudig deeltje voor explosie-effecten
  *   ParticleSystem – beheert alle deeltjes
- *   Starfield      – scrollende sterrenhemelan imatie
+ *   NetworkGrid    – scrollend netwerk-grid met data-pakketten
  *   Projectile     – kogel van speler naar vijand
  *   Enemy          – één vijand met zijn woord
  *   EnemySystem    – spawn, lock-on, input routing
@@ -136,47 +136,75 @@ class ParticleSystem {
 }
 
 /* ============================================================
-   Starfield
+   NetworkGrid  – scrollend netwerk-grid met data-pakketten
    ============================================================ */
 
-class Starfield {
+class NetworkGrid {
   /**
    * @param {number} w  Canvas breedte
    * @param {number} h  Canvas hoogte
    */
   constructor(w, h) {
-    this.w     = w;
-    this.h     = h;
-    this.stars = Array.from({ length: 120 }, () => this._make(true));
+    this.w        = w;
+    this.h        = h;
+    this.cellSize = 55;
+    this.offset   = 0;
+    this.packets  = Array.from({ length: 20 }, () => this._make(true));
   }
 
   _make(randomY = false) {
+    const cols = Math.ceil(this.w / this.cellSize);
     return {
-      x:     Math.random() * this.w,
-      y:     randomY ? Math.random() * this.h : 0,
-      r:     Math.random() * 1.4 + 0.3,
-      speed: Math.random() * 25 + 8,
-      alpha: Math.random() * 0.6 + 0.3
+      x:     Math.floor(Math.random() * (cols + 1)) * this.cellSize,
+      y:     randomY ? Math.random() * this.h : -4,
+      speed: Math.random() * 30 + 12,
+      alpha: Math.random() * 0.45 + 0.1,
+      r:     Math.random() * 1.5 + 0.5
     };
   }
 
   update(dt) {
-    this.stars.forEach(s => {
-      s.y += s.speed * dt;
-      if (s.y > this.h) { Object.assign(s, this._make()); }
+    this.offset = (this.offset + 18 * dt) % this.cellSize;
+    this.packets.forEach(p => {
+      p.y += p.speed * dt;
+      if (p.y > this.h + 4) Object.assign(p, this._make());
     });
   }
 
   draw(ctx) {
-    this.stars.forEach(s => {
-      ctx.save();
-      ctx.globalAlpha = s.alpha;
-      ctx.fillStyle   = '#fff';
+    const { w, h, cellSize, offset } = this;
+    ctx.save();
+    ctx.lineWidth = 1;
+
+    // Horizontale grid-lijnen (scrollen mee)
+    ctx.strokeStyle = 'rgba(0,255,65,0.05)';
+    for (let y = -cellSize + offset; y < h + cellSize; y += cellSize) {
       ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.moveTo(0, y);
+      ctx.lineTo(w, y);
+      ctx.stroke();
+    }
+
+    // Verticale grid-lijnen (statisch)
+    for (let x = 0; x <= w; x += cellSize) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, h);
+      ctx.stroke();
+    }
+
+    // Data-pakketten stromen naar beneden langs de gridlijnen
+    this.packets.forEach(p => {
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle   = '#00ff41';
+      ctx.shadowBlur  = 5;
+      ctx.shadowColor = '#00ff41';
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
       ctx.fill();
-      ctx.restore();
     });
+
+    ctx.restore();
   }
 }
 
@@ -216,10 +244,10 @@ class Projectile {
 
   draw(ctx) {
     ctx.save();
-    ctx.strokeStyle = '#00ffff';
+    ctx.strokeStyle = '#00ff41';
     ctx.lineWidth   = 2.5;
     ctx.shadowBlur  = 10;
-    ctx.shadowColor = '#00ffff';
+    ctx.shadowColor = '#00ff41';
     // Staart: kleine terugwaartse lijn
     ctx.beginPath();
     ctx.moveTo(this.x, this.y);
@@ -306,17 +334,30 @@ class Enemy {
     ctx.fill();
     ctx.stroke();
 
-    // Scheep icoon (driehoek links)
-    const sx = x - w / 2 + 16;
-    ctx.shadowBlur  = 6;
-    ctx.fillStyle   = this.locked ? '#ffcc00' : '#ff3333';
-    ctx.shadowColor = ctx.fillStyle;
+    // Virus icoon (hexagon + spikes)
+    const sx  = x - w / 2 + 16;
+    const vr  = 8;
+    const col = this.locked ? '#ffcc00' : '#ff2244';
+    ctx.shadowBlur  = 8;
+    ctx.fillStyle   = col;
+    ctx.shadowColor = col;
     ctx.beginPath();
-    ctx.moveTo(sx,      y - 9);
-    ctx.lineTo(sx + 11, y);
-    ctx.lineTo(sx,      y + 9);
+    for (let i = 0; i < 6; i++) {
+      const a = (i * Math.PI) / 3 - Math.PI / 6;
+      i === 0
+        ? ctx.moveTo(sx + Math.cos(a) * vr, y + Math.sin(a) * vr)
+        : ctx.lineTo(sx + Math.cos(a) * vr, y + Math.sin(a) * vr);
+    }
     ctx.closePath();
     ctx.fill();
+    ctx.strokeStyle = col;
+    ctx.lineWidth   = 1.5;
+    [0, Math.PI / 2, Math.PI, -Math.PI / 2].forEach(a => {
+      ctx.beginPath();
+      ctx.moveTo(sx + Math.cos(a) * vr,       y + Math.sin(a) * vr);
+      ctx.lineTo(sx + Math.cos(a) * (vr + 5), y + Math.sin(a) * (vr + 5));
+      ctx.stroke();
+    });
 
     // Woord tekst
     ctx.shadowBlur = 0;
@@ -602,7 +643,7 @@ class Game {
     // Sub-systemen
     this.particles   = new ParticleSystem();
     this.enemySys    = new EnemySystem(WordList);
-    this.starfield   = null;
+    this.networkGrid = null;
     this.hud         = new HUD();
     this.screens     = new ScreenManager();
     this.inputHandler = null;
@@ -648,7 +689,7 @@ class Game {
   _resize() {
     this.canvas.width  = window.innerWidth;
     this.canvas.height = window.innerHeight;
-    this.starfield     = new Starfield(this.canvas.width, this.canvas.height);
+    this.networkGrid   = new NetworkGrid(this.canvas.width, this.canvas.height);
   }
 
   // ── Spel starten / resetten ────────────────────────────
@@ -710,9 +751,9 @@ class Game {
     this.projectiles.push(new Projectile(px, py, ex, ey));
 
     // Explosie deeltjes
-    this.particles.explode(ex, ey, '#00ffff', 18);
+    this.particles.explode(ex, ey, '#00ff41', 18);
     this.particles.explode(ex, ey, '#ffcc00', 10);
-    this.particles.explode(ex, ey, '#ff6600', 8);
+    this.particles.explode(ex, ey, '#ff2244', 8);
 
     // Score: woordlengte × 10 × level, met bonus voor snelle vijanden
     const points = Math.round(enemy.word.length * 10 * this.level);
@@ -781,7 +822,7 @@ class Game {
   }
 
   _update(dt) {
-    this.starfield.update(dt);
+    this.networkGrid.update(dt);
 
     // Bepaal ondergrens voor vijanden (rekening houdend met mobiel toetsenbord)
     const kbH    = isMobileDevice() ? 168 : 0;
@@ -820,17 +861,17 @@ class Game {
     const H   = this.canvas.height;
 
     // Achtergrond
-    ctx.fillStyle = '#000510';
+    ctx.fillStyle = '#000d00';
     ctx.fillRect(0, 0, W, H);
 
-    this.starfield.draw(ctx);
+    this.networkGrid.draw(ctx);
 
     // Doelaanduiding: stippellijn naar gelockte vijand
     const locked = this.enemySys.locked;
     if (locked) {
       ctx.save();
       ctx.setLineDash([5, 7]);
-      ctx.strokeStyle = 'rgba(255,200,0,0.25)';
+      ctx.strokeStyle = 'rgba(0,255,65,0.25)';
       ctx.lineWidth   = 1;
       ctx.beginPath();
       ctx.moveTo(W / 2, H - 30);
@@ -866,13 +907,13 @@ class Game {
       ctx.textBaseline = 'middle';
       ctx.shadowBlur   = 25;
       ctx.shadowColor  = '#ffdd00';
-      ctx.fillText(`NIVEAU ${this.level}!`, W / 2, H / 2);
+      ctx.fillText(`THREAT LEVEL ${this.level}!`, W / 2, H / 2);
       ctx.restore();
     }
   }
 
   /**
-   * Teken het spelersschip (driehoek + motor-gloed).
+   * Teken het firewall-schild van de speler.
    * @param {number} x
    * @param {number} y
    */
@@ -880,40 +921,52 @@ class Game {
     const ctx = this.ctx;
     ctx.save();
 
-    // Schip
-    ctx.fillStyle   = '#00ffff';
-    ctx.shadowBlur  = 16;
-    ctx.shadowColor = '#00ffff';
+    // Schild buitenkant
+    ctx.fillStyle   = '#00ff41';
+    ctx.shadowBlur  = 18;
+    ctx.shadowColor = '#00ff41';
     ctx.beginPath();
-    ctx.moveTo(x,      y - 16);
-    ctx.lineTo(x + 13, y + 9);
-    ctx.lineTo(x - 13, y + 9);
+    ctx.moveTo(x - 14, y - 12);
+    ctx.lineTo(x + 14, y - 12);
+    ctx.lineTo(x + 14, y + 3);
+    ctx.quadraticCurveTo(x + 14, y + 14, x, y + 19);
+    ctx.quadraticCurveTo(x - 14, y + 14, x - 14, y + 3);
     ctx.closePath();
     ctx.fill();
 
-    // Motor uitlaat
-    ctx.fillStyle   = '#3366ff';
-    ctx.shadowColor = '#3366ff';
-    ctx.shadowBlur  = 12;
+    // Schild binnenkant (donkere kern)
+    ctx.shadowBlur = 0;
+    ctx.fillStyle  = '#000d00';
     ctx.beginPath();
-    ctx.moveTo(x - 7, y + 9);
-    ctx.lineTo(x + 7, y + 9);
-    ctx.lineTo(x,     y + 20);
+    ctx.moveTo(x - 9,  y - 7);
+    ctx.lineTo(x + 9,  y - 7);
+    ctx.lineTo(x + 9,  y + 2);
+    ctx.quadraticCurveTo(x + 9, y + 9, x, y + 13);
+    ctx.quadraticCurveTo(x - 9, y + 9, x - 9, y + 2);
     ctx.closePath();
     ctx.fill();
+
+    // "FW" label in de kern
+    ctx.fillStyle    = '#00ff41';
+    ctx.shadowBlur   = 4;
+    ctx.shadowColor  = '#00ff41';
+    ctx.font         = 'bold 7px "Courier New", Courier, monospace';
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('FW', x, y + 2);
 
     ctx.restore();
   }
 
-  /** Teken sterrenhemel + schip in het idle/startscherm. */
+  /** Teken netwerk-grid + schild in het idle/startscherm. */
   _drawIdle() {
-    if (!this.starfield) return;
+    if (!this.networkGrid) return;
     const ctx = this.ctx;
     const W   = this.canvas.width;
     const H   = this.canvas.height;
-    ctx.fillStyle = '#000510';
+    ctx.fillStyle = '#000d00';
     ctx.fillRect(0, 0, W, H);
-    this.starfield.draw(ctx);
+    this.networkGrid.draw(ctx);
     this._drawPlayer(W / 2, H - 30);
   }
 }

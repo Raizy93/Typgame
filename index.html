@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Netwerkwachter – Spelling Defense</title>
+  <title>TypGame – Cyber Security</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,15 +11,15 @@
   <!-- ── Startscherm ─────────────────────────────────────── -->
   <div id="start-screen" class="screen">
     <div class="screen-content">
-      <h1 class="game-title">NETWERK<span>WACHTER</span></h1>
-      <p class="subtitle">Oefen spelling: typ woorden om virussen te blokkeren</p>
+      <h1 class="game-title">TYP<span>GAME</span></h1>
+      <p class="subtitle">Neutraliseer de virussen voor ze het netwerk binnendringen</p>
 
-      <button id="start-btn" class="btn">START BEVEILIGING</button>
+      <button id="start-btn" class="btn">START GAME</button>
 
       <ul class="instructions">
-        <li>Typ de <em>eerste letter</em> om een virus te selecteren</li>
+        <li>Typ de <em>eerste letter</em> van een woord om te locken</li>
         <li>Typ het <em>volledige woord</em> om het virus te neutraliseren</li>
-        <li>Virussen die de firewall bereiken kosten een <em>schildpunt</em></li>
+        <li>Virussen die de firewall bereiken kosten een <em>schild</em></li>
       </ul>
     </div>
   </div>
@@ -27,24 +27,24 @@
   <!-- ── Game-over scherm ────────────────────────────────── -->
   <div id="gameover-screen" class="screen hidden">
     <div class="screen-content">
-      <h1 class="game-title">NETWERK <span>GEKRAAKT</span></h1>
-      <p class="score-line">Spellingscore &nbsp;<span id="final-score">0</span></p>
-      <p class="hs-line">Beste score &nbsp;<span id="high-score-display">0</span></p>
-      <button id="restart-btn" class="btn">OPNIEUW BEVEILIGEN</button>
+      <h1 class="game-title">GAME <span>OVER</span></h1>
+      <p class="score-line">Score &nbsp;<span id="final-score">0</span></p>
+      <p class="hs-line">High score &nbsp;<span id="high-score-display">0</span></p>
+      <button id="restart-btn" class="btn">OPNIEUW SPELEN</button>
     </div>
   </div>
 
   <!-- ── HUD ────────────────────────────────────────────── -->
   <div id="hud" class="hidden" aria-live="polite">
-    <div id="score-display">Spellingscore&thinsp;<span id="score">0</span></div>
+    <div id="score-display">Score&thinsp;<span id="score">0</span></div>
 
-    <div id="lives-display" aria-label="schildpunten">
-      <span class="life" aria-label="schildpunt 1">&#9829;</span>
-      <span class="life" aria-label="schildpunt 2">&#9829;</span>
-      <span class="life" aria-label="schildpunt 3">&#9829;</span>
+    <div id="lives-display" aria-label="shields">
+      <span class="life" aria-label="schild 1">&#9632;</span>
+      <span class="life" aria-label="schild 2">&#9632;</span>
+      <span class="life" aria-label="schild 3">&#9632;</span>
     </div>
 
-    <div id="level-display">Niveau&thinsp;<span id="level">1</span></div>
+    <div id="level-display">Level&thinsp;<span id="level">1</span></div>
   </div>
 
   <!-- ── Canvas ─────────────────────────────────────────── -->
