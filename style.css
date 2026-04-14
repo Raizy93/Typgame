@@ -77,15 +77,56 @@ html, body {
 }
 
 #lives-display .life {
-  font-size: 1.3rem;
-  color: var(--cyan);
-  transition: color 0.3s, text-shadow 0.3s;
-  text-shadow: 0 0 8px var(--cyan);
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  opacity: 1;
+  transition: opacity 0.3s, filter 0.3s;
+  filter: drop-shadow(0 0 5px var(--cyan));
 }
 
 #lives-display .life.lost {
-  color: #0a1a0a;
-  text-shadow: none;
+  opacity: 0.15;
+  filter: none;
+}
+
+/* ── HUD rechtergroep ───────────────────────────────────── */
+#hud-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── Pauze & toetsenbord-knoppen (in HUD) ───────────────── */
+#pause-btn,
+#kb-toggle-btn {
+  pointer-events: auto;
+  background: transparent;
+  border: 1px solid rgba(0, 255, 65, 0.3);
+  color: rgba(0, 255, 65, 0.55);
+  font-size: 1rem;
+  width: 30px;
+  height: 30px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, color 0.15s, box-shadow 0.15s;
+  flex-shrink: 0;
+}
+
+#pause-btn:hover,
+#kb-toggle-btn:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+#pause-btn.paused,
+#kb-toggle-btn.kb-active {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
 }
 
 /* ── Schermen (start / game-over) ───────────────────────── */

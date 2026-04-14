@@ -214,30 +214,42 @@ class NetworkGrid {
 
 class Projectile {
   /**
-   * @param {number} sx  Start x
-   * @param {number} sy  Start y
-   * @param {number} tx  Doel x
-   * @param {number} ty  Doel y
+   * @param {number} sx      Start x
+   * @param {number} sy      Start y
+   * @param {number} tx      Doel x
+   * @param {number} ty      Doel y
+   * @param {Enemy|null} target  Optioneel: vijand om te volgen (homing)
    */
-  constructor(sx, sy, tx, ty) {
-    this.x    = sx;
-    this.y    = sy;
-    this.tx   = tx;
-    this.ty   = ty;
-    const dx  = tx - sx;
-    const dy  = ty - sy;
-    const len = Math.hypot(dx, dy) || 1;
-    const spd = 650;
-    this.vx   = (dx / len) * spd;
-    this.vy   = (dy / len) * spd;
-    this.done = false;
+  constructor(sx, sy, tx, ty, target = null) {
+    this.x      = sx;
+    this.y      = sy;
+    this.tx     = tx;
+    this.ty     = ty;
+    this.target = target;
+    const dx    = tx - sx;
+    const dy    = ty - sy;
+    const len   = Math.hypot(dx, dy) || 1;
+    const spd   = 650;
+    this.vx     = (dx / len) * spd;
+    this.vy     = (dy / len) * spd;
+    this.done   = false;
   }
 
   update(dt) {
+    // Homing: herbereken richting naar de bewegende vijand
+    if (this.target) {
+      const dx  = this.target.x - this.x;
+      const dy  = this.target.y - this.y;
+      const len = Math.hypot(dx, dy) || 1;
+      if (len < 10) { this.done = true; return; }
+      this.vx = (dx / len) * 650;
+      this.vy = (dy / len) * 650;
+    }
     this.x += this.vx * dt;
     this.y += this.vy * dt;
-    // Bereikt het doel als de dot-product negatief wordt
-    if (this.vx * (this.tx - this.x) + this.vy * (this.ty - this.y) <= 0) {
+    // Fallback voor kogels zonder target
+    if (!this.target &&
+        this.vx * (this.tx - this.x) + this.vy * (this.ty - this.y) <= 0) {
       this.done = true;
     }
   }
@@ -274,6 +286,7 @@ class Enemy {
     this.speed   = speed;
     this.typed   = '';        // al getypte letters
     this.locked  = false;     // speler is op deze vijand gelocked
+    this.dying   = false;     // kogel is onderweg, nog niet vernietigd
     this.pulse   = 0;         // fase voor lock-puls animatie
 
     // Afmetingen op basis van woordlengte
@@ -305,12 +318,13 @@ class Enemy {
   /**
    * @param {number} bottomY  Grens waaronder het als 'off-screen' geldt
    */
-  isOffScreen(bottomY) { return this.y - this.h / 2 > bottomY; }
+  isOffScreen(bottomY) { return this.y + this.h / 2 > bottomY; }
 
   draw(ctx) {
     const { x, y, w, h } = this;
 
     ctx.save();
+    if (this.dying) ctx.globalAlpha = 0.45;
 
     // Gloed / omlijning
     if (this.locked) {
@@ -334,30 +348,28 @@ class Enemy {
     ctx.fill();
     ctx.stroke();
 
-    // Virus icoon (hexagon + spikes)
-    const sx  = x - w / 2 + 16;
-    const vr  = 8;
-    const col = this.locked ? '#ffcc00' : '#ff2244';
-    ctx.shadowBlur  = 8;
-    ctx.fillStyle   = col;
+    // Virus icoon (PNG)
+    const sx       = x - w / 2 + 16;
+    const iconSize = 30;
+    const col      = this.locked ? '#ffcc00' : '#ff2244';
+    ctx.shadowBlur  = 10;
     ctx.shadowColor = col;
-    ctx.beginPath();
-    for (let i = 0; i < 6; i++) {
-      const a = (i * Math.PI) / 3 - Math.PI / 6;
-      i === 0
-        ? ctx.moveTo(sx + Math.cos(a) * vr, y + Math.sin(a) * vr)
-        : ctx.lineTo(sx + Math.cos(a) * vr, y + Math.sin(a) * vr);
-    }
-    ctx.closePath();
-    ctx.fill();
-    ctx.strokeStyle = col;
-    ctx.lineWidth   = 1.5;
-    [0, Math.PI / 2, Math.PI, -Math.PI / 2].forEach(a => {
+    if (this._virusImg && this._virusImg.complete && this._virusImg.naturalWidth > 0) {
+      ctx.drawImage(this._virusImg, sx - iconSize / 2, y - iconSize / 2, iconSize, iconSize);
+    } else {
+      // Fallback hexagon zolang afbeelding laadt
+      const vr = 8;
+      ctx.fillStyle = col;
       ctx.beginPath();
-      ctx.moveTo(sx + Math.cos(a) * vr,       y + Math.sin(a) * vr);
-      ctx.lineTo(sx + Math.cos(a) * (vr + 5), y + Math.sin(a) * (vr + 5));
-      ctx.stroke();
-    });
+      for (let i = 0; i < 6; i++) {
+        const a = (i * Math.PI) / 3 - Math.PI / 6;
+        i === 0
+          ? ctx.moveTo(sx + Math.cos(a) * vr, y + Math.sin(a) * vr)
+          : ctx.lineTo(sx + Math.cos(a) * vr, y + Math.sin(a) * vr);
+      }
+      ctx.closePath();
+      ctx.fill();
+    }
 
     // Woord tekst
     ctx.shadowBlur = 0;
@@ -446,6 +458,12 @@ class EnemySystem {
     this.enemies = this.enemies.filter(e => e !== enemy);
   }
 
+  /** Markeer vijand als geraakt: geef lock vrij zodat speler verder kan typen. */
+  markDying(enemy) {
+    if (this.locked === enemy) this.locked = null;
+    enemy.dying = true;
+  }
+
   /**
    * Update alle vijanden; spawn nieuwe; return aantal dat de bodem bereikte.
    * @param {number} dt
@@ -470,7 +488,7 @@ class EnemySystem {
     this.enemies = this.enemies.filter(e => {
       if (e.isOffScreen(bottomY)) {
         if (this.locked === e) this.locked = null;
-        lost++;
+        if (!e.dying) lost++;   // al geraakte vijanden kosten geen leven
         return false;
       }
       return true;
@@ -623,6 +641,7 @@ class ScreenManager {
 const State = Object.freeze({
   IDLE:     'idle',
   PLAYING:  'playing',
+  PAUSED:   'paused',
   GAMEOVER: 'gameover'
 });
 
@@ -640,6 +659,14 @@ class Game {
     this.level    = 1;
     this.highScore = parseInt(safeLocalStorage('typgame_hs') || '0', 10);
 
+    // Assets vooraf laden
+    this._playerImg        = new Image();
+    this._playerImg.src    = 'assets/player.png';
+    this._playerImgSize    = 80;
+
+    this._virusImg         = new Image();
+    this._virusImg.src     = 'assets/virus.png';
+
     // Sub-systemen
     this.particles   = new ParticleSystem();
     this.enemySys    = new EnemySystem(WordList);
@@ -649,6 +676,10 @@ class Game {
     this.inputHandler = null;
     this.mobileKb    = null;
     this.projectiles = [];
+
+    // Toetsenbord-voorkeur (persistent via localStorage)
+    const savedKb      = safeLocalStorage('typgame_kb');
+    this._kbVisible    = savedKb !== null ? savedKb === 'true' : false;
 
     // Moeilijkheid
     this.spawnInterval = 2.4;  // seconden
@@ -679,6 +710,26 @@ class Game {
       .addEventListener('click', () => this._startGame());
     document.getElementById('restart-btn')
       .addEventListener('click', () => this._startGame());
+
+    document.getElementById('kb-toggle-btn')
+      .addEventListener('click', () => {
+        this._kbVisible = !this._kbVisible;
+        safeLocalStorage('typgame_kb', this._kbVisible);
+        this._applyKbVisibility();
+        this._updateKbToggle();
+      });
+
+    document.getElementById('pause-btn')
+      .addEventListener('click', () => this._togglePause());
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' &&
+          (this.state === State.PLAYING || this.state === State.PAUSED)) {
+        this._togglePause();
+      }
+    });
+
+    this._updateKbToggle();
 
     this.screens.showStart();
 
@@ -712,11 +763,9 @@ class Game {
     this.hud.show();
     this.hud.update(this.score, this.lives, this.level);
 
-    if (isMobileDevice()) {
-      this.mobileKb.show();
-    } else {
-      this.mobileKb.hide();
-    }
+    this._applyKbVisibility();
+    document.getElementById('pause-btn').textContent = '⏸';
+    document.getElementById('pause-btn').classList.remove('paused');
 
     if (this.inputHandler) this.inputHandler.destroy();
     this.inputHandler = new InputHandler(c => this._onInput(c));
@@ -728,6 +777,56 @@ class Game {
     requestAnimationFrame(t => this._loop(t));
   }
 
+  // ── Pauze ──────────────────────────────────────────────
+
+  _togglePause() {
+    if (this.state === State.PLAYING) {
+      this.state = State.PAUSED;
+      document.getElementById('pause-btn').textContent = '▶';
+      document.getElementById('pause-btn').classList.add('paused');
+      this._drawPaused();
+    } else if (this.state === State.PAUSED) {
+      this.state = State.PLAYING;
+      document.getElementById('pause-btn').textContent = '⏸';
+      document.getElementById('pause-btn').classList.remove('paused');
+      this._lastTime = performance.now();
+      requestAnimationFrame(t => this._loop(t));
+    }
+  }
+
+  _drawPaused() {
+    const ctx = this.ctx;
+    const W   = this.canvas.width;
+    const H   = this.canvas.height;
+    ctx.save();
+    ctx.fillStyle = 'rgba(0,13,0,0.65)';
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle    = '#00ff41';
+    ctx.font         = `bold ${Math.round(W / 12)}px "Courier New", Courier, monospace`;
+    ctx.textAlign    = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowBlur   = 30;
+    ctx.shadowColor  = '#00ff41';
+    ctx.fillText('PAUSED', W / 2, H / 2);
+    ctx.font         = `${Math.round(W / 36)}px "Courier New", Courier, monospace`;
+    ctx.shadowBlur   = 0;
+    ctx.fillStyle    = 'rgba(0,255,65,0.45)';
+    ctx.fillText('druk Esc om verder te gaan', W / 2, H / 2 + Math.round(W / 10));
+    ctx.restore();
+  }
+
+  // ── Toetsenbord zichtbaarheid ──────────────────────────
+
+  _applyKbVisibility() {
+    if (this.state !== State.PLAYING) return;
+    this._kbVisible ? this.mobileKb.show() : this.mobileKb.hide();
+  }
+
+  _updateKbToggle() {
+    const btn = document.getElementById('kb-toggle-btn');
+    if (btn) btn.classList.toggle('kb-active', this._kbVisible);
+  }
+
   // ── Input ──────────────────────────────────────────────
 
   _onInput(char) {
@@ -736,26 +835,28 @@ class Game {
     const result = this.enemySys.handleInput(char);
 
     if (result.type === 'kill') {
-      this._destroyEnemy(result.enemy);
+      this._fireAtEnemy(result.enemy);
     }
     // 'miss', 'hit', 'lock', 'none' – geen extra actie nodig
   }
 
-  _destroyEnemy(enemy) {
+  /** Stap 1: vuur kogel af en markeer vijand als geraakt. */
+  _fireAtEnemy(enemy) {
+    const { x: px, y: py } = this._playerPos();
+    this.projectiles.push(new Projectile(px, py, enemy.x, enemy.y, enemy));
+    this.enemySys.markDying(enemy);
+  }
+
+  /** Stap 2: kogel heeft vijand geraakt — explosie, score, verwijdering. */
+  _killEnemy(enemy) {
     const ex = enemy.x;
     const ey = enemy.y;
 
-    // Kogel van speler naar vijand
-    const px = this.canvas.width / 2;
-    const py = this.canvas.height - 30;
-    this.projectiles.push(new Projectile(px, py, ex, ey));
-
-    // Explosie deeltjes
     this.particles.explode(ex, ey, '#00ff41', 18);
     this.particles.explode(ex, ey, '#ffcc00', 10);
     this.particles.explode(ex, ey, '#ff2244', 8);
 
-    // Score: woordlengte × 10 × level, met bonus voor snelle vijanden
+    // Score: woordlengte × 10 × level
     const points = Math.round(enemy.word.length * 10 * this.level);
     this.score  += points;
 
@@ -786,6 +887,11 @@ class Game {
     this.lives--;
     this.hud.update(this.score, this.lives, this.level);
     this._flashAlpha = 0.55;
+
+    // Impact-effect op het speler-karakter
+    const { x: px, y: py } = this._playerPos();
+    this.particles.explode(px, py, '#ff2244', 22);
+    this.particles.explode(px, py, '#ff8800', 12);
 
     if (this.lives <= 0) this._gameOver();
   }
@@ -824,9 +930,8 @@ class Game {
   _update(dt) {
     this.networkGrid.update(dt);
 
-    // Bepaal ondergrens voor vijanden (rekening houdend met mobiel toetsenbord)
-    const kbH    = isMobileDevice() ? 168 : 0;
-    const bottomY = this.canvas.height - kbH - 10;
+    // Ondergrens = positie van het speler-karakter
+    const { y: bottomY } = this._playerPos();
 
     const livesLost = this.enemySys.update(
       dt, this.canvas.width, bottomY, this.level, this.spawnInterval
@@ -838,7 +943,14 @@ class Game {
 
     this.particles.update();
 
-    this.projectiles = this.projectiles.filter(p => { p.update(dt); return !p.done; });
+    this.projectiles = this.projectiles.filter(p => {
+      p.update(dt);
+      if (p.done) {
+        if (p.target) this._killEnemy(p.target);
+        return false;
+      }
+      return true;
+    });
 
     if (this._flashAlpha > 0)  this._flashAlpha  = Math.max(0, this._flashAlpha  - dt * 2.5);
     if (this._levelUpTime > 0) this._levelUpTime = Math.max(0, this._levelUpTime - dt);
@@ -856,9 +968,10 @@ class Game {
   // ── Tekenen ────────────────────────────────────────────
 
   _draw() {
-    const ctx = this.ctx;
-    const W   = this.canvas.width;
-    const H   = this.canvas.height;
+    const ctx             = this.ctx;
+    const W               = this.canvas.width;
+    const H               = this.canvas.height;
+    const { x: plX, y: plY } = this._playerPos();
 
     // Achtergrond
     ctx.fillStyle = '#000d00';
@@ -874,7 +987,7 @@ class Game {
       ctx.strokeStyle = 'rgba(0,255,65,0.25)';
       ctx.lineWidth   = 1;
       ctx.beginPath();
-      ctx.moveTo(W / 2, H - 30);
+      ctx.moveTo(plX, plY);
       ctx.lineTo(locked.x, locked.y);
       ctx.stroke();
       ctx.restore();
@@ -884,8 +997,8 @@ class Game {
     this.projectiles.forEach(p => p.draw(ctx));
     this.particles.draw(ctx);
 
-    // Spelerschip
-    this._drawPlayer(W / 2, H - 30);
+    // Speler
+    this._drawPlayer(plX, plY);
 
     // Rode flash bij leven verlies
     if (this._flashAlpha > 0) {
@@ -912,48 +1025,45 @@ class Game {
     }
   }
 
+  /** Geeft de positie van de speler terug (keyboard-aware). */
+  _playerPos() {
+    const kbH = this._kbVisible ? 168 : 0;
+    return {
+      x: this.canvas.width  / 2,
+      y: this.canvas.height - kbH - 40
+    };
+  }
+
   /**
-   * Teken het firewall-schild van de speler.
+   * Teken het speler-karakter op (x, y).
    * @param {number} x
    * @param {number} y
    */
   _drawPlayer(x, y) {
-    const ctx = this.ctx;
+    const ctx  = this.ctx;
+    const size = this._playerImgSize;
     ctx.save();
 
-    // Schild buitenkant
-    ctx.fillStyle   = '#00ff41';
-    ctx.shadowBlur  = 18;
-    ctx.shadowColor = '#00ff41';
-    ctx.beginPath();
-    ctx.moveTo(x - 14, y - 12);
-    ctx.lineTo(x + 14, y - 12);
-    ctx.lineTo(x + 14, y + 3);
-    ctx.quadraticCurveTo(x + 14, y + 14, x, y + 19);
-    ctx.quadraticCurveTo(x - 14, y + 14, x - 14, y + 3);
-    ctx.closePath();
-    ctx.fill();
-
-    // Schild binnenkant (donkere kern)
-    ctx.shadowBlur = 0;
-    ctx.fillStyle  = '#000d00';
-    ctx.beginPath();
-    ctx.moveTo(x - 9,  y - 7);
-    ctx.lineTo(x + 9,  y - 7);
-    ctx.lineTo(x + 9,  y + 2);
-    ctx.quadraticCurveTo(x + 9, y + 9, x, y + 13);
-    ctx.quadraticCurveTo(x - 9, y + 9, x - 9, y + 2);
-    ctx.closePath();
-    ctx.fill();
-
-    // "FW" label in de kern
-    ctx.fillStyle    = '#00ff41';
-    ctx.shadowBlur   = 4;
-    ctx.shadowColor  = '#00ff41';
-    ctx.font         = 'bold 7px "Courier New", Courier, monospace';
-    ctx.textAlign    = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('FW', x, y + 2);
+    if (this._playerImg.complete && this._playerImg.naturalWidth > 0) {
+      // Groene glow rondom het karakter
+      ctx.shadowBlur  = 18;
+      ctx.shadowColor = '#00ff41';
+      ctx.drawImage(
+        this._playerImg,
+        x - size / 2,
+        y - size / 2,
+        size,
+        size
+      );
+    } else {
+      // Fallback zolang de afbeelding nog laadt
+      ctx.fillStyle   = '#00ff41';
+      ctx.shadowBlur  = 16;
+      ctx.shadowColor = '#00ff41';
+      ctx.beginPath();
+      ctx.arc(x, y, 20, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     ctx.restore();
   }
@@ -967,7 +1077,8 @@ class Game {
     ctx.fillStyle = '#000d00';
     ctx.fillRect(0, 0, W, H);
     this.networkGrid.draw(ctx);
-    this._drawPlayer(W / 2, H - 30);
+    const { x: idleX, y: idleY } = this._playerPos();
+    this._drawPlayer(idleX, idleY);
   }
 }
 
