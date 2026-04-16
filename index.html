@@ -15,6 +15,7 @@
       <p class="subtitle">Neutraliseer de virussen voor ze het netwerk binnendringen</p>
 
       <button id="start-btn" class="btn">START GAME</button>
+      <button id="open-lb-btn" class="btn btn-ghost lb-start-btn">&#127942; RANGLIJST</button>
 
       <!-- ── Moeilijkheidsgraad ─────────────────────────── -->
       <div id="difficulty-selector">
@@ -60,10 +61,47 @@
   <!-- ── Game-over scherm ────────────────────────────────── -->
   <div id="gameover-screen" class="screen hidden">
     <div class="screen-content">
-      <h1 class="game-title">GAME <span>OVER</span></h1>
-      <p class="score-line">Score &nbsp;<span id="final-score">0</span></p>
-      <p class="hs-line">High score &nbsp;<span id="high-score-display">0</span></p>
-      <button id="restart-btn" class="btn">OPNIEUW SPELEN</button>
+
+      <!-- Fase 1: score + naam invoer -->
+      <div id="go-phase-score">
+        <h1 class="game-title">GAME <span>OVER</span></h1>
+        <p class="score-line">Score&nbsp;<span id="final-score">0</span></p>
+        <p class="hs-line">Persoonlijk record&nbsp;<span id="high-score-display">0</span></p>
+
+        <div class="name-entry">
+          <p class="name-prompt">&#128274; Sla je score op in de ranglijst</p>
+          <div class="name-row">
+            <input id="player-name-input" class="name-input"
+                   type="text" maxlength="16"
+                   placeholder="JOUW NAAM"
+                   autocomplete="off" spellcheck="false">
+            <button id="save-score-btn" class="btn">OPSLAAN</button>
+          </div>
+          <button id="skip-score-btn" class="skip-link">overslaan &#8594;</button>
+        </div>
+      </div>
+
+      <!-- Fase 2: ranglijst -->
+      <div id="go-phase-lb" class="hidden">
+        <h2 class="lb-title">&#127942; RANGLIJST</h2>
+        <p id="lb-status" class="lb-status">laden&#8230;</p>
+        <ol id="lb-list" class="lb-list"></ol>
+        <div class="go-btns">
+          <button id="restart-btn" class="btn">OPNIEUW</button>
+          <button id="menu-from-go-btn" class="btn btn-ghost">HOOFDMENU</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Ranglijst-modal (startscherm) ─────────────────────── -->
+  <div id="lb-modal" class="screen hidden">
+    <div class="screen-content">
+      <h2 class="lb-title">&#127942; RANGLIJST</h2>
+      <p id="lb-modal-status" class="lb-status">laden&#8230;</p>
+      <ol id="lb-modal-list" class="lb-list"></ol>
+      <button id="lb-modal-close" class="btn btn-ghost">SLUITEN</button>
     </div>
   </div>
 
@@ -97,6 +135,10 @@
   </div>
 
   <!-- Scripts ──────────────────────────────────────────── -->
+  <!-- Firebase (alleen geladen als config aanwezig is) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="data/firebase-config.js"></script>
   <script src="data/categories.js"></script>
   <script src="data/words.js"></script>
   <script src="script.js"></script>

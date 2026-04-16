@@ -503,6 +503,64 @@ class EnemySystem {
 }
 
 /* ============================================================
+   Leaderboard  –  Firebase Realtime Database koppeling
+   ============================================================ */
+
+class Leaderboard {
+  constructor() {
+    this._ref = null;
+    this._ok  = false;
+    try {
+      if (typeof firebase !== 'undefined' &&
+          typeof FIREBASE_CONFIG !== 'undefined' &&
+          !FIREBASE_CONFIG.apiKey.startsWith('JOUW_')) {
+        if (!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+        this._ref = firebase.database().ref('leaderboard');
+        this._ok  = true;
+      }
+    } catch (e) {
+      console.warn('Leaderboard niet beschikbaar:', e.message);
+    }
+  }
+
+  get available() { return this._ok; }
+
+  /** Sla een score op en geef de gegenereerde key terug. */
+  async save(name, score, difficulty) {
+    if (!this._ok) return null;
+    const entry = {
+      name:       _escHtml(name.trim().slice(0, 16)) || 'Anoniem',
+      score,
+      difficulty: difficulty || 'normaal',
+      ts:         Date.now()
+    };
+    const ref = await this._ref.push(entry);
+    return ref.key;
+  }
+
+  /** Haal de top-n scores op (hoogste eerst). */
+  async getTop(n = 10) {
+    if (!this._ok) return [];
+    const snap = await this._ref
+      .orderByChild('score')
+      .limitToLast(n)
+      .once('value');
+    const rows = [];
+    snap.forEach(child => rows.push({ key: child.key, ...child.val() }));
+    return rows.reverse();
+  }
+}
+
+/** Kleine HTML-escape helper (voorkomt XSS via namen). */
+function _escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/* ============================================================
    InputHandler  (fysiek toetsenbord)
    ============================================================ */
 
@@ -684,6 +742,10 @@ class Game {
     this._virusImg         = new Image();
     this._virusImg.src     = 'assets/virus.png';
 
+    // Leaderboard
+    this.leaderboard   = new Leaderboard();
+    this._lastSavedKey = null;   // Firebase key van de meest recent opgeslagen score
+
     // Sub-systemen
     this.particles   = new ParticleSystem();
     this.enemySys    = new EnemySystem(WordList);
@@ -729,6 +791,24 @@ class Game {
       .addEventListener('click', () => this._startGame());
     document.getElementById('restart-btn')
       .addEventListener('click', () => this._startGame());
+
+    // Game-over: naam opslaan / overslaan
+    document.getElementById('save-score-btn')
+      .addEventListener('click', () => this._onSaveScore());
+    document.getElementById('skip-score-btn')
+      .addEventListener('click', () => this._openLeaderboard(null));
+    document.getElementById('player-name-input')
+      .addEventListener('keydown', e => { if (e.key === 'Enter') this._onSaveScore(); });
+    document.getElementById('menu-from-go-btn')
+      .addEventListener('click', () => this._goToStart());
+
+    // Ranglijst-modal vanuit startscherm
+    document.getElementById('open-lb-btn')
+      .addEventListener('click', () => this._openLeaderboardModal());
+    document.getElementById('lb-modal-close')
+      .addEventListener('click', () => {
+        document.getElementById('lb-modal').classList.add('hidden');
+      });
 
     document.getElementById('kb-toggle-btn')
       .addEventListener('click', () => {
@@ -1029,12 +1109,124 @@ class Game {
     }
 
     this.hud.hide();
-    this.screens.showGameOver(this.score, this.highScore);
+    this.mobileKb.hide();
 
     if (this.inputHandler) {
       this.inputHandler.destroy();
       this.inputHandler = null;
     }
+
+    // Vul score in en toon fase 1 (naam invoer)
+    document.getElementById('final-score').textContent        = this.score;
+    document.getElementById('high-score-display').textContent = this.highScore;
+    document.getElementById('go-phase-score').classList.remove('hidden');
+    document.getElementById('go-phase-lb').classList.add('hidden');
+    document.getElementById('player-name-input').value = '';
+
+    // Naam-invoer verbergen als Firebase niet beschikbaar is
+    const nameEntry = document.querySelector('.name-entry');
+    if (nameEntry) nameEntry.style.display = this.leaderboard.available ? '' : 'none';
+
+    this.screens.showGameOver(this.score, this.highScore);
+
+    // Autofocus op het naamveld (klein moment wachten op CSS-transitie)
+    if (this.leaderboard.available) {
+      setTimeout(() => document.getElementById('player-name-input').focus(), 120);
+    } else {
+      // Geen Firebase: direct ranglijst overslaan
+      setTimeout(() => this._openLeaderboard(null), 100);
+    }
+  }
+
+  /** Verwerkt klik op "Opslaan": valideer naam en open ranglijst. */
+  _onSaveScore() {
+    const input = document.getElementById('player-name-input');
+    const name  = input.value.trim();
+    if (!name) { input.focus(); input.classList.add('input-error'); return; }
+    input.classList.remove('input-error');
+    this._openLeaderboard(name);
+  }
+
+  /** Sla score op (optioneel) en toon de ranglijst-fase. */
+  async _openLeaderboard(name) {
+    // Schakel naar fase 2
+    document.getElementById('go-phase-score').classList.add('hidden');
+    document.getElementById('go-phase-lb').classList.remove('hidden');
+
+    const statusEl = document.getElementById('lb-status');
+    const listEl   = document.getElementById('lb-list');
+    listEl.innerHTML = '';
+    this._lastSavedKey = null;
+
+    if (!this.leaderboard.available) {
+      statusEl.textContent = 'Ranglijst niet beschikbaar (Firebase niet geconfigureerd).';
+      return;
+    }
+
+    statusEl.textContent = name ? 'Score opslaan…' : 'Ranglijst laden…';
+
+    try {
+      if (name) {
+        this._lastSavedKey = await this.leaderboard.save(name, this.score, this._difficulty);
+      }
+      statusEl.textContent = 'Laden…';
+      const entries = await this.leaderboard.getTop(10);
+      statusEl.textContent = '';
+      this._renderLbEntries(listEl, entries, this._lastSavedKey);
+    } catch (e) {
+      statusEl.textContent = 'Kon de ranglijst niet laden.';
+      console.warn(e);
+    }
+  }
+
+  /** Open de ranglijst-modal vanuit het startscherm. */
+  async _openLeaderboardModal() {
+    const modal    = document.getElementById('lb-modal');
+    const statusEl = document.getElementById('lb-modal-status');
+    const listEl   = document.getElementById('lb-modal-list');
+
+    modal.classList.remove('hidden');
+    listEl.innerHTML = '';
+
+    if (!this.leaderboard.available) {
+      statusEl.textContent = 'Ranglijst niet beschikbaar (Firebase niet geconfigureerd).';
+      return;
+    }
+
+    statusEl.textContent = 'Laden…';
+    try {
+      const entries = await this.leaderboard.getTop(10);
+      statusEl.textContent = '';
+      this._renderLbEntries(listEl, entries, null);
+    } catch (e) {
+      statusEl.textContent = 'Kon de ranglijst niet laden.';
+    }
+  }
+
+  /** Zet een array van leaderboard-entries om naar <li>-elementen. */
+  _renderLbEntries(listEl, entries, highlightKey) {
+    const diffLabel = { makkelijk: 'EASY', normaal: 'MID', moeilijk: 'HARD' };
+    if (!entries.length) {
+      const li = document.createElement('li');
+      li.className   = 'lb-entry';
+      li.textContent = 'Nog geen scores — speel als eerste!';
+      li.style.gridColumn = '1/-1';
+      li.style.textAlign  = 'center';
+      li.style.color      = 'rgba(0,255,65,0.3)';
+      listEl.appendChild(li);
+      return;
+    }
+    entries.forEach((e, i) => {
+      const li = document.createElement('li');
+      li.className = 'lb-entry' + (e.key === highlightKey ? ' lb-me' : '');
+      li.innerHTML = `
+        <span class="lb-rank">${i + 1}</span>
+        <span class="lb-name">${_escHtml(e.name)}</span>
+        <span class="lb-score">${e.score}</span>
+        <span class="lb-diff">${diffLabel[e.difficulty] || ''}</span>
+      `;
+      listEl.appendChild(li);
+    });
   }
 
   // ── Game loop ──────────────────────────────────────────
