@@ -290,8 +290,8 @@ class Enemy {
     this.pulse   = 0;         // fase voor lock-puls animatie
 
     // Afmetingen op basis van woordlengte
-    this.w = word.length * 12 + 36;
-    this.h = 38;
+    this.w = word.length * 14 + 44;
+    this.h = 44;
   }
 
   get remaining() { return this.word.slice(this.typed.length); }
@@ -373,7 +373,7 @@ class Enemy {
 
     // Woord tekst
     ctx.shadowBlur = 0;
-    ctx.font       = 'bold 14px "Courier New", Courier, monospace';
+    ctx.font       = 'bold 17px "Courier New", Courier, monospace';
     ctx.textAlign  = 'left';
     ctx.textBaseline = 'middle';
 
