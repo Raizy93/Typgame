@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * script.js – TypGame
+ * script.js – SpellingSecurity
  *
  * Modules (in volgorde van definitie):
  *   Utils          – kleine hulpfuncties

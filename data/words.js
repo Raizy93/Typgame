@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * data/words.js – TypGame
+ * data/words.js – SpellingSecurity
  * Haalt woorden op uit de geselecteerde categorieën (data/categories.js).
  * Categorie-selectie wordt opgeslagen in localStorage ('typgame_cats').
  */
