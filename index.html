@@ -16,11 +16,44 @@
 
       <button id="start-btn" class="btn">START GAME</button>
 
+      <!-- ── Moeilijkheidsgraad ─────────────────────────── -->
+      <div id="difficulty-selector">
+        <span class="diff-title">&#9889; MOEILIJKHEID</span>
+        <div class="diff-options">
+          <button class="diff-btn" data-diff="makkelijk">MAKKELIJK</button>
+          <button class="diff-btn diff-selected" data-diff="normaal">NORMAAL</button>
+          <button class="diff-btn" data-diff="moeilijk">MOEILIJK</button>
+        </div>
+      </div>
+
       <ul class="instructions">
         <li>Typ de <em>eerste letter</em> van een woord om te locken</li>
         <li>Typ het <em>volledige woord</em> om het virus te neutraliseren</li>
         <li>Virussen die de firewall bereiken kosten een <em>schild</em></li>
       </ul>
+
+      <!-- ── Categorie-selector ─────────────────────────── -->
+      <div id="category-selector">
+        <div class="cat-header">
+          <span class="cat-title">&#128218; SPELLING CATEGORIEËN</span>
+          <div class="cat-actions">
+            <button id="cat-all-btn" class="cat-action-btn">Alles aan</button>
+            <button id="cat-none-btn" class="cat-action-btn">Alles uit</button>
+          </div>
+        </div>
+        <div id="category-grid">
+          <!-- Dynamisch gevuld door script.js -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Pauze scherm ──────────────────────────────────────── -->
+  <div id="pause-screen" class="screen hidden">
+    <div class="pause-content">
+      <p class="pause-title">GEPAUZEERD</p>
+      <button id="resume-btn" class="btn">DOORGAAN</button>
+      <button id="quit-btn" class="btn btn-ghost">&#8592; HOOFDMENU</button>
     </div>
   </div>
 
@@ -34,6 +67,9 @@
     </div>
   </div>
 
+  <!-- ── Avatar ────────────────────────────────────────── -->
+  <img id="avatar" src="assets/meester-danny.png" alt="Meester Danny">
+
   <!-- ── HUD ────────────────────────────────────────────── -->
   <div id="hud" class="hidden" aria-live="polite">
     <div id="score-display">Score&thinsp;<span id="score">0</span></div>
@@ -45,9 +81,10 @@
     </div>
 
     <div id="hud-right">
+      <span id="diff-display" class="diff-normaal">NORMAAL</span>
       <div id="level-display">Level&thinsp;<span id="level">1</span></div>
-      <button id="pause-btn" title="Pauze (Esc)" aria-label="Pauze">⏸</button>
-      <button id="kb-toggle-btn" title="Toetsenbord aan/uit" aria-label="Toetsenbord aan/uit">⌨</button>
+      <button id="pause-btn" title="Pauze (Esc)" aria-label="Pauze">&#9208;</button>
+      <button id="kb-toggle-btn" title="Toetsenbord aan/uit" aria-label="Toetsenbord aan/uit">&#9000;</button>
     </div>
   </div>
 
@@ -60,6 +97,7 @@
   </div>
 
   <!-- Scripts ──────────────────────────────────────────── -->
+  <script src="data/categories.js"></script>
   <script src="data/words.js"></script>
   <script src="script.js"></script>
 

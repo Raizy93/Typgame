@@ -320,7 +320,7 @@ class Enemy {
    */
   isOffScreen(bottomY) { return this.y + this.h / 2 > bottomY; }
 
-  draw(ctx) {
+  draw(ctx, virusImg) {
     const { x, y, w, h } = this;
 
     ctx.save();
@@ -354,8 +354,8 @@ class Enemy {
     const col      = this.locked ? '#ffcc00' : '#ff2244';
     ctx.shadowBlur  = 10;
     ctx.shadowColor = col;
-    if (this._virusImg && this._virusImg.complete && this._virusImg.naturalWidth > 0) {
-      ctx.drawImage(this._virusImg, sx - iconSize / 2, y - iconSize / 2, iconSize, iconSize);
+    if (virusImg && virusImg.complete && virusImg.naturalWidth > 0) {
+      ctx.drawImage(virusImg, sx - iconSize / 2, y - iconSize / 2, iconSize, iconSize);
     } else {
       // Fallback hexagon zolang afbeelding laadt
       const vr = 8;
@@ -412,15 +412,17 @@ class EnemySystem {
   }
 
   /** Spawn één nieuwe vijand. */
-  spawnOne(canvasW, level) {
-    const pool     = this.wordList.getWordsForLevel(level);
-    const used     = new Set(this.enemies.map(e => e.word));
-    const avail    = pool.filter(w => !used.has(w));
-    const word     = randomFrom(avail.length ? avail : pool);
+  spawnOne(canvasW, level, speedFn) {
+    const pool  = this.wordList.getWordsForLevel(level);
+    const used  = new Set(this.enemies.map(e => e.word));
+    const avail = pool.filter(w => !used.has(w));
+    const word  = randomFrom(avail.length ? avail : pool);
 
-    const margin   = 70;
-    const x        = randomInt(margin, canvasW - margin);
-    const speed    = 28 + level * 6 + Math.random() * 12;
+    const margin = 70;
+    const x      = randomInt(margin, canvasW - margin);
+    const speed  = speedFn
+      ? speedFn(level)
+      : 28 + level * 6 + Math.random() * 12;
 
     this.enemies.push(new Enemy(word, x, speed));
   }
@@ -473,14 +475,14 @@ class EnemySystem {
    * @param {number} spawnInterval  Seconden tussen spawns
    * @returns {number}  Aantal vijanden dat de bodem bereikte (= levens verlies)
    */
-  update(dt, canvasW, bottomY, level, spawnInterval) {
+  update(dt, canvasW, bottomY, level, spawnInterval, speedFn) {
     this.enemies.forEach(e => e.update(dt));
 
     // Spawn
     this.spawnTimer += dt;
     if (this.spawnTimer >= spawnInterval) {
       this.spawnTimer = 0;
-      this.spawnOne(canvasW, level);
+      this.spawnOne(canvasW, level, speedFn);
     }
 
     // Vijanden die de bodem bereikten
@@ -497,7 +499,7 @@ class EnemySystem {
     return lost;
   }
 
-  draw(ctx) { this.enemies.forEach(e => e.draw(ctx)); }
+  draw(ctx, virusImg) { this.enemies.forEach(e => e.draw(ctx, virusImg)); }
 }
 
 /* ============================================================
@@ -648,6 +650,21 @@ const State = Object.freeze({
 /** Drempelwaarden voor level-up (score) */
 const LEVEL_THRESHOLDS = [0, 150, 400, 900, 1800, 3500, 6000];
 
+/**
+ * Moeilijkheidsgraad-instellingen.
+ * spawnBase      – starttijd tussen spawns (seconden)
+ * spawnMin       – minimale spawn-interval bij hoge levels
+ * spawnDecay     – verlaging per level
+ * speedBase      – basissnelheid vijanden (px/s)
+ * speedPerLevel  – extra snelheid per level
+ * speedRand      – willekeurige extra snelheid
+ */
+const DIFFICULTY_CONFIG = {
+  makkelijk: { spawnBase: 4.2, spawnMin: 1.6, spawnDecay: 0.22, speedBase: 16, speedPerLevel: 3, speedRand: 7  },
+  normaal:   { spawnBase: 3.0, spawnMin: 1.0, spawnDecay: 0.20, speedBase: 22, speedPerLevel: 5, speedRand: 10 },
+  moeilijk:  { spawnBase: 2.4, spawnMin: 0.75,spawnDecay: 0.20, speedBase: 28, speedPerLevel: 6, speedRand: 12 }
+};
+
 class Game {
   constructor() {
     this.canvas   = document.getElementById('game-canvas');
@@ -681,8 +698,10 @@ class Game {
     const savedKb      = safeLocalStorage('typgame_kb');
     this._kbVisible    = savedKb !== null ? savedKb === 'true' : false;
 
-    // Moeilijkheid
-    this.spawnInterval = 2.4;  // seconden
+    // Moeilijkheid (persistent via localStorage)
+    const savedDiff    = safeLocalStorage('typgame_diff');
+    this._difficulty   = (savedDiff && DIFFICULTY_CONFIG[savedDiff]) ? savedDiff : 'normaal';
+    this.spawnInterval = DIFFICULTY_CONFIG[this._difficulty].spawnBase;
 
     // Visuele effecten
     this._flashAlpha  = 0;    // rood flash bij leven verlies
@@ -722,6 +741,12 @@ class Game {
     document.getElementById('pause-btn')
       .addEventListener('click', () => this._togglePause());
 
+    document.getElementById('resume-btn')
+      .addEventListener('click', () => this._togglePause());
+
+    document.getElementById('quit-btn')
+      .addEventListener('click', () => this._goToStart());
+
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' &&
           (this.state === State.PLAYING || this.state === State.PAUSED)) {
@@ -730,6 +755,8 @@ class Game {
     });
 
     this._updateKbToggle();
+    this._initDifficultySelector();
+    this._initCategorySelector();
 
     this.screens.showStart();
 
@@ -746,10 +773,11 @@ class Game {
   // ── Spel starten / resetten ────────────────────────────
 
   _startGame() {
+    const cfg          = DIFFICULTY_CONFIG[this._difficulty];
     this.score         = 0;
     this.lives         = 3;
     this.level         = 1;
-    this.spawnInterval = 2.4;
+    this.spawnInterval = cfg.spawnBase;
     this.projectiles   = [];
     this._flashAlpha   = 0;
     this._levelUpTime  = 0;
@@ -762,6 +790,7 @@ class Game {
     this.screens.hideAll();
     this.hud.show();
     this.hud.update(this.score, this.lives, this.level);
+    this._updateDiffDisplay();
 
     this._applyKbVisibility();
     document.getElementById('pause-btn').textContent = '⏸';
@@ -771,7 +800,10 @@ class Game {
     this.inputHandler = new InputHandler(c => this._onInput(c));
 
     // Meteen een eerste vijand spawnen
-    this.enemySys.spawnOne(this.canvas.width, this.level);
+    const startCfg   = DIFFICULTY_CONFIG[this._difficulty];
+    const startSpeed = (lvl) =>
+      startCfg.speedBase + lvl * startCfg.speedPerLevel + Math.random() * startCfg.speedRand;
+    this.enemySys.spawnOne(this.canvas.width, this.level, startSpeed);
 
     this._lastTime = performance.now();
     requestAnimationFrame(t => this._loop(t));
@@ -780,39 +812,127 @@ class Game {
   // ── Pauze ──────────────────────────────────────────────
 
   _togglePause() {
+    const pauseEl = document.getElementById('pause-screen');
     if (this.state === State.PLAYING) {
       this.state = State.PAUSED;
       document.getElementById('pause-btn').textContent = '▶';
       document.getElementById('pause-btn').classList.add('paused');
-      this._drawPaused();
+      pauseEl.classList.remove('hidden');
     } else if (this.state === State.PAUSED) {
       this.state = State.PLAYING;
       document.getElementById('pause-btn').textContent = '⏸';
       document.getElementById('pause-btn').classList.remove('paused');
+      pauseEl.classList.add('hidden');
       this._lastTime = performance.now();
       requestAnimationFrame(t => this._loop(t));
     }
   }
 
-  _drawPaused() {
-    const ctx = this.ctx;
-    const W   = this.canvas.width;
-    const H   = this.canvas.height;
-    ctx.save();
-    ctx.fillStyle = 'rgba(0,13,0,0.65)';
-    ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle    = '#00ff41';
-    ctx.font         = `bold ${Math.round(W / 12)}px "Courier New", Courier, monospace`;
-    ctx.textAlign    = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.shadowBlur   = 30;
-    ctx.shadowColor  = '#00ff41';
-    ctx.fillText('PAUSED', W / 2, H / 2);
-    ctx.font         = `${Math.round(W / 36)}px "Courier New", Courier, monospace`;
-    ctx.shadowBlur   = 0;
-    ctx.fillStyle    = 'rgba(0,255,65,0.45)';
-    ctx.fillText('druk Esc om verder te gaan', W / 2, H / 2 + Math.round(W / 10));
-    ctx.restore();
+  /** Sluit het spel en gaat terug naar het startscherm. */
+  _goToStart() {
+    this.state = State.IDLE;
+
+    // Sluit pauze-overlay
+    document.getElementById('pause-screen').classList.add('hidden');
+    document.getElementById('pause-btn').textContent = '⏸';
+    document.getElementById('pause-btn').classList.remove('paused');
+
+    // Verwijder input
+    if (this.inputHandler) {
+      this.inputHandler.destroy();
+      this.inputHandler = null;
+    }
+
+    // Verberg HUD en toetsenbord
+    this.hud.hide();
+    this.mobileKb.hide();
+
+    // Reset spelobjecten
+    this.projectiles = [];
+    this.particles.clear();
+    this.enemySys.reset();
+
+    // Toon startscherm
+    this.screens.showStart();
+    this._drawIdle();
+  }
+
+  // ── Moeilijkheidsgraad-selector ───────────────────────
+
+  _initDifficultySelector() {
+    const btns = document.querySelectorAll('.diff-btn');
+    if (!btns.length) return;
+
+    // Zet de opgeslagen keuze actief
+    btns.forEach(btn => {
+      btn.classList.toggle('diff-selected', btn.dataset.diff === this._difficulty);
+      btn.addEventListener('click', () => {
+        this._difficulty = btn.dataset.diff;
+        safeLocalStorage('typgame_diff', this._difficulty);
+        btns.forEach(b => b.classList.toggle('diff-selected', b === btn));
+      });
+    });
+  }
+
+  /** Ververs de moeilijkheidsgraad-badge in de HUD. */
+  _updateDiffDisplay() {
+    const el = document.getElementById('diff-display');
+    if (!el) return;
+    const labels = { makkelijk: 'MAKKELIJK', normaal: 'NORMAAL', moeilijk: 'MOEILIJK' };
+    el.textContent = labels[this._difficulty] || this._difficulty.toUpperCase();
+    el.className   = `diff-${this._difficulty}`;
+  }
+
+  // ── Categorie-selector ────────────────────────────────
+
+  _initCategorySelector() {
+    const grid = document.getElementById('category-grid');
+    if (!grid) return;
+
+    const saved    = this._loadCatSelection();
+    const allNames = WordList.getCategoryNames();
+
+    allNames.forEach(name => {
+      const btn = document.createElement('button');
+      btn.type      = 'button';
+      btn.className = 'cat-btn' + (saved.includes(name) ? ' cat-selected' : '');
+      btn.textContent = name;
+      btn.addEventListener('click', () => {
+        btn.classList.toggle('cat-selected');
+        this._saveCatSelection();
+      });
+      grid.appendChild(btn);
+    });
+
+    // Alles aan / alles uit knoppen
+    document.getElementById('cat-all-btn').addEventListener('click', () => {
+      grid.querySelectorAll('.cat-btn').forEach(b => b.classList.add('cat-selected'));
+      this._saveCatSelection();
+    });
+    document.getElementById('cat-none-btn').addEventListener('click', () => {
+      grid.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('cat-selected'));
+      this._saveCatSelection();
+    });
+  }
+
+  _loadCatSelection() {
+    try {
+      const raw = localStorage.getItem('typgame_cats');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (_) {}
+    // Standaard: alles geselecteerd
+    return WordList.getCategoryNames();
+  }
+
+  _saveCatSelection() {
+    const selected = [...document.querySelectorAll('#category-grid .cat-btn.cat-selected')]
+      .map(b => b.textContent);
+    try {
+      localStorage.setItem('typgame_cats', JSON.stringify(selected));
+    } catch (_) {}
   }
 
   // ── Toetsenbord zichtbaarheid ──────────────────────────
@@ -874,8 +994,12 @@ class Game {
     }
 
     if (newLevel !== this.level) {
-      this.level         = newLevel;
-      this.spawnInterval = Math.max(0.75, 2.4 - this.level * 0.2);
+      this.level = newLevel;
+      const cfg  = DIFFICULTY_CONFIG[this._difficulty];
+      this.spawnInterval = Math.max(
+        cfg.spawnMin,
+        cfg.spawnBase - this.level * cfg.spawnDecay
+      );
       this.hud.update(this.score, this.lives, this.level);
       this._levelUpTime = 2.2; // seconden zichtbaar
     }
@@ -933,8 +1057,12 @@ class Game {
     // Ondergrens = positie van het speler-karakter
     const { y: bottomY } = this._playerPos();
 
+    const cfg      = DIFFICULTY_CONFIG[this._difficulty];
+    const speedFn  = (lvl) =>
+      cfg.speedBase + lvl * cfg.speedPerLevel + Math.random() * cfg.speedRand;
+
     const livesLost = this.enemySys.update(
-      dt, this.canvas.width, bottomY, this.level, this.spawnInterval
+      dt, this.canvas.width, bottomY, this.level, this.spawnInterval, speedFn
     );
     for (let i = 0; i < livesLost; i++) {
       this._loseLife();
@@ -993,7 +1121,7 @@ class Game {
       ctx.restore();
     }
 
-    this.enemySys.draw(ctx);
+    this.enemySys.draw(ctx, this._virusImg);
     this.projectiles.forEach(p => p.draw(ctx));
     this.particles.draw(ctx);
 

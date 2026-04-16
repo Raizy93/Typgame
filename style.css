@@ -65,6 +65,26 @@ html, body {
 
 #hud.hidden { display: none; }
 
+/* ── Avatar (Meester Danny) ──────────────────────────── */
+#avatar {
+  position: fixed;
+  top: 6px;
+  left: 10px;
+  width: 76px;
+  height: 76px;
+  object-fit: contain;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 255, 65, 0.35);
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.25);
+  z-index: 60;
+  pointer-events: none;
+  user-select: none;
+}
+
+#score-display {
+  margin-left: 72px; /* ruimte voor avatar */
+}
+
 #score-display span,
 #level-display span {
   color: var(--cyan);
@@ -296,6 +316,233 @@ html, body {
 
 /* ── Hulpklassen ────────────────────────────────────────── */
 .hidden { display: none !important; }
+
+/* ── Moeilijkheidsgraad-selector ───────────────────────── */
+#difficulty-selector {
+  margin-top: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.diff-title {
+  font-size: 0.7rem;
+  color: rgba(0, 255, 65, 0.5);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.diff-options {
+  display: flex;
+  gap: 0;
+  /* geen overflow:hidden – dat knipt de box-shadow van child-knoppen weg */
+}
+
+.diff-btn {
+  background: transparent;
+  border: 1px solid rgba(0, 255, 65, 0.2);
+  border-right: none;             /* vermijdt dubbele rand tussen knoppen */
+  color: rgba(0, 255, 65, 0.3);
+  font-family: var(--font);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 0.45rem 1.2rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+/* Eerste knop: linker afgeronde hoeken */
+.diff-btn:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+/* Laatste knop: rechter rand + rechter afgeronde hoeken */
+.diff-btn:last-child {
+  border-right: 1px solid rgba(0, 255, 65, 0.2);
+  border-radius: 0 4px 4px 0;
+}
+
+.diff-btn:hover {
+  color: rgba(0, 255, 65, 0.75);
+  background: rgba(0, 255, 65, 0.05);
+  border-color: rgba(0, 255, 65, 0.4);
+}
+
+/* Actieve knop – groene glow, zelfde stijl als de rest van de game */
+.diff-btn.diff-selected {
+  background: rgba(0, 255, 65, 0.08);
+  color: var(--cyan);
+  border-color: var(--cyan);
+  text-shadow: 0 0 8px var(--cyan);
+  box-shadow: 0 0 12px rgba(0, 255, 65, 0.5), inset 0 0 8px rgba(0, 255, 65, 0.1);
+}
+
+/* Actieve knop past ook de aangrenzende rand bij */
+.diff-btn.diff-selected + .diff-btn {
+  border-left-color: var(--cyan);
+}
+
+/* ── HUD moeilijkheidsgraad indicator ───────────────────── */
+#diff-display {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.18rem 0.55rem;
+  border-radius: 3px;
+  border: 1px solid;
+  user-select: none;
+}
+
+#diff-display.diff-makkelijk {
+  color: var(--cyan);
+  border-color: rgba(0, 255, 65, 0.4);
+  text-shadow: 0 0 6px var(--cyan);
+}
+
+#diff-display.diff-normaal {
+  color: var(--gold);
+  border-color: rgba(255, 204, 0, 0.4);
+  text-shadow: 0 0 6px var(--gold);
+}
+
+#diff-display.diff-moeilijk {
+  color: var(--red);
+  border-color: rgba(255, 34, 68, 0.4);
+  text-shadow: 0 0 6px var(--red);
+}
+
+/* ── Pauze-overlay ──────────────────────────────────────── */
+/* Gebruikt .screen voor layout/z-index – zelfde als start/gameover */
+.pause-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem 1.5rem;
+}
+
+.pause-title {
+  font-size: clamp(2rem, 7vw, 3.8rem);
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  text-shadow: 0 0 18px var(--cyan), 0 0 40px var(--cyan);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+
+/* Secundaire (ghost) variant van .btn */
+.btn-ghost {
+  border-color: rgba(0, 255, 65, 0.3);
+  color: rgba(0, 255, 65, 0.45);
+  font-size: clamp(0.78rem, 2.2vw, 0.92rem);
+  padding: 0.55rem 1.8rem;
+}
+
+.btn-ghost:hover,
+.btn-ghost:focus-visible {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(0, 255, 65, 0.07);
+  box-shadow: 0 0 12px rgba(0, 255, 65, 0.3);
+}
+
+/* ── Categorie-selector (startscherm) ───────────────────── */
+#category-selector {
+  margin-top: 1.4rem;
+  width: 100%;
+}
+
+.cat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+  gap: 0.5rem;
+}
+
+.cat-title {
+  font-size: 0.7rem;
+  color: rgba(0, 255, 65, 0.5);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.cat-actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.cat-action-btn {
+  background: transparent;
+  border: 1px solid rgba(0, 255, 65, 0.25);
+  color: rgba(0, 255, 65, 0.45);
+  font-family: var(--font);
+  font-size: 0.62rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.cat-action-btn:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+#category-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+  max-height: 180px;
+  overflow-y: auto;
+  padding: 0.1rem 0.1rem 0.4rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 255, 65, 0.3) transparent;
+}
+
+#category-grid::-webkit-scrollbar {
+  width: 4px;
+}
+#category-grid::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 65, 0.3);
+  border-radius: 2px;
+}
+
+.cat-btn {
+  background: transparent;
+  border: 1px solid rgba(0, 255, 65, 0.15);
+  color: rgba(0, 255, 65, 0.28);
+  font-family: var(--font);
+  font-size: 0.68rem;
+  padding: 0.28rem 0.7rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.cat-btn:hover {
+  border-color: rgba(0, 255, 65, 0.5);
+  color: rgba(0, 255, 65, 0.7);
+}
+
+.cat-btn.cat-selected {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  box-shadow: 0 0 8px rgba(0, 255, 65, 0.35), inset 0 0 8px rgba(0, 255, 65, 0.08);
+  background: rgba(0, 255, 65, 0.06);
+}
 
 /* ── Responsief fijn-afstemmen ──────────────────────────── */
 @media (max-width: 400px) {
