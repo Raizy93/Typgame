@@ -314,6 +314,85 @@ html, body {
   box-shadow: 0 0 6px var(--cyan);
 }
 
+/* ── Speciale-tekens balk ───────────────────────────────── */
+#special-chars {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 7px 14px;
+  background: rgba(0, 10, 0, 0.93);
+  border-top: 1px solid rgba(0, 255, 65, 0.18);
+  z-index: 50;
+  transition: bottom 0.2s;
+}
+
+#special-chars.hidden { display: none !important; }
+
+/* Balk omhoog schuiven als mobiel toetsenbord zichtbaar is */
+#special-chars.kb-up { bottom: var(--kb-h); }
+
+.spec-label {
+  font-family: var(--font);
+  font-size: 0.6rem;
+  color: rgba(0, 255, 65, 0.35);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-right: 4px;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.spec-btn {
+  font-family: var(--font);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--cyan);
+  background: rgba(0, 40, 0, 0.8);
+  border: 1px solid rgba(0, 255, 65, 0.3);
+  border-radius: 6px;
+  padding: 6px 11px;
+  min-width: 40px;
+  min-height: 38px;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.1s, box-shadow 0.1s, color 0.1s, border-color 0.1s, transform 0.06s;
+}
+
+.spec-btn:hover {
+  background: rgba(0, 80, 0, 0.85);
+  box-shadow: 0 0 8px rgba(0, 255, 65, 0.4);
+  border-color: rgba(0, 255, 65, 0.6);
+}
+
+.spec-btn:active,
+.spec-btn.pressed {
+  background: rgba(0, 120, 0, 0.9);
+  transform: scale(0.9);
+}
+
+/* Bredere SPATIE-knop */
+.spec-btn.spec-space {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  padding: 6px 16px;
+  color: rgba(0, 255, 65, 0.65);
+}
+
+/* Volgende benodigde teken oplichten (goud, net als gelocked vijand) */
+.spec-btn.spec-next {
+  color: var(--gold);
+  border-color: var(--gold);
+  box-shadow: 0 0 14px rgba(255, 204, 0, 0.55), inset 0 0 6px rgba(255, 204, 0, 0.1);
+  background: rgba(50, 35, 0, 0.9);
+}
+
 /* ── Hulpklassen ────────────────────────────────────────── */
 .hidden { display: none !important; }
 

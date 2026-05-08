@@ -1,442 +1,502 @@
 'use strict';
 
 /**
- * data/categories.js – Staal Woordenlijst Groep 7
- * Alle categorieën met bijbehorende woorden.
- * Woorden worden gefilterd op typeerbaarheid (alleen letters a-z/A-Z).
+ * data/categories.js – SpellingSecurity
+ * Gegenereerd vanuit: Woordenlijst per categorie.json
+ *
+ * Alle 34 categorieën zijn opgenomen. Woorden met accenten (é),
+ * trema's (ë/ï/ü), apostrofs (auto's), koppeltekens (auto-export)
+ * én spaties ('s avonds) zijn toegestaan. Spelers typen die tekens
+ * via de speciale-tekens balk of via hun fysiek toetsenbord.
+ *
+ * _fw() filtert: a-z/A-Z + é ë ï ü + apostrof + koppelteken + spatie,
+ *                minimaal 3 tekens, geen duplicaten
  */
 
 function _fw(list) {
   return [...new Set(list.filter(w =>
     typeof w === 'string' &&
     w.length >= 3 &&
-    /^[a-zA-Z]+$/.test(w)
+    /^[a-zA-ZéëïüÉËÏÜ'\- ]+$/.test(w)
   ))];
 }
 
 const Categories = {
 
+  "Hakwoord": _fw([
+    "angel","angst","belangrijk","brengen","dringen","Engeland","gemengd",
+    "gevangen","haringen","ingang","jongen","langzaam","lengte","mengsel",
+    "opbrengen","opbrengst","ophangen","swingende","tekening","triangel",
+    "vergadering","verzekering","voorbereiding","voorganger","voorrang",
+    "wringen","zangeres","zwanger"
+  ]),
+
   "Zingwoord": _fw([
-    "angel","angst","behangen","belangrijk","brengen","dringen","Engeland",
-    "gevangene","haringen","Hengelo","hengsel","ingang","jongen","langzaam",
-    "lengte","mengsel","mustang","opbrengst","ophangen","slinger","stengel",
-    "voorganger","voorrang","wringen","zangeres","zwanger","aanmoediging",
-    "begeleiding","behandeling","bekeuring","beschaving","bereiding","bevolking",
-    "beweging","bezichtiging","Efteling","Groningen","herinnering","kleding",
-    "koning","koningin","leiding","lieveling","ligging","omgeving","omleiding",
-    "ontmoeting","opening","overhoring","mening","nieuweling","regering",
-    "rekening","reservering","richting","riolering","schemering","spanning",
-    "stemming","tekening","uitbreiding","uitnodiging","verdieping","vergissing",
-    "vergroting","verlichting","verrassing","verrijking","versnelling",
-    "verspilling","vertraging","vervelling","verzameling","vestiging",
-    "Vlissingen","vluchteling","voorstelling","wijziging","wrijving",
-    "afvalverwerking","gaswinning","houtbewerking","ontwikkelingslanden",
-    "spaarrekening","spijsvertering","weersverwachting","wereldbevolking"
+    "aandoening","begeleiding","behandeling","bereiding","beschaving",
+    "bevolking","beweging","bezichtiging","kleding","koning","koningin",
+    "leerling","leiding","lieveling","oefening","oplichting","rekening",
+    "reservering","richting","samenstelling","spanning","stemming",
+    "uitbreiding","verdieping","vergissing","vergroting","verlichting",
+    "verrassing"
   ]),
 
   "Luchtwoord": _fw([
-    "achteruit","berichten","bergachtig","berucht","bezocht","dichtbij",
-    "dochter","gedichten","gekocht","gerechten","gevechten","gewicht","grachten",
-    "kinderachtig","machteloos","nachtegaal","ochtend","raadselachtig","rechtop",
-    "richting","tachtig","terecht","uitzicht","Utrecht","verplicht","verrichten",
-    "verwachten","zenuwachtig","archeoloog","archief","archieven","lachen",
-    "lichaam","techniek","technisch","bouwtechniek","hemellichamen","kooktechniek",
-    "lachspiegel","lichaamstemperatuur","knipperlichten","lichtsnelheid",
-    "chemie","christelijk","chronisch","chrysant","giechelen","goochelaar"
+    "architect","bericht","boerderijwinkel","gedicht","gewicht","gezicht",
+    "kachel","kuchen","lachen","lichaam","licht","luchtfoto","luchtreiziger",
+    "lunchgerecht","och","pech","recht","techniek","toch","uitzicht",
+    "verkeersbericht","verplicht","voorzichtig","vruchtbare","wintervachten",
+    "zich"
   ]),
 
   "Plankwoord": _fw([
-    "anker","banken","bedankt","bedenken","dankbaar","donker","enkelvoud",
-    "Enkhuizen","Frankrijk","inschenken","jonkvrouw","klinker","koninklijk",
-    "koninkrijk","linksaf","medeklinker","onafhankelijk","ondanks","plankton",
-    "sprinkhanen","stinken","verzonken","Vinkeveen","wankelen"
+    "afhankelijk","anker","banken","bedankt","bedenken","dankbaar","donker",
+    "drinken","Frankrijk","inschenken","jonkvrouw","klinker","knikker",
+    "koninklijk","linker","linksaf","medeklinker","ondanks","plankenkoorts",
+    "rinkelen","springen","stinken","verzonken","Vinkeveen","wankelen",
+    "winkels","zwenken"
   ]),
 
-  "Eer/Oor/Eur": _fw([
-    "controleer","eergisteren","eerlijk","heerlijk","meervoud","meneer",
-    "neerslag","oneerlijk","onweer","sfeer","tekeergaan","veertien","verkeer",
-    "verkeerd","vleermuizen","wanneer","behoorlijk","beoordelen","doorlopen",
-    "Doornroosje","doorzichtig","eekhoorns","enzovoort","gehoor","hoorn",
-    "kantoor","koorts","meteoor","noord","Noorwegen","ongestoord","schoorsteen",
-    "soort","voorlezer","voorouders","voorraad","voorrang","voorruit",
-    "voorstelling","Amersfoort","Apeldoorn","auteur","beurt","conducteur",
-    "coureur","directeur","kleur","inspecteur","interieur","gouverneur",
-    "monteur","regisseur","scheur","sleur","actueel","beeld","eventueel",
-    "fluweel","geheel","heelal","individueel","juweel","momenteel","onderdeel",
-    "procentueel","ritueel","visueel","teddybeer","veerkrachtig","voorhoofd",
-    "voorjaar","rozengeur","meelwormpjes","paringsritueel","luchtverkeersleider"
+  "Eer-oor-eur-woord": _fw([
+    "acteur","amateur","behoorlijk","beoordelen","chauffeur","controleer",
+    "couleur","directeur","doorlopen","eekhoorns","eerlijk","eerst","gehoor",
+    "inspecteur","interieur","kantoor","kleur","Noorwegen","ongehoord",
+    "schoorsteen","sleur","voornamelijk","voorrang","voorstelling",
+    "waterleiding","weersverwachting"
   ]),
 
-  "Langermaakwoord": _fw([
-    "altijd","Ameland","avond","beluisterd","benauwd","benieuwd","buitenland",
-    "Duitsland","eiland","Engeland","enkelvoud","Friesland","geduld","Gelderland",
-    "gemengd","gemiddeld","gereedschap","Groenland","Holland","honderd","iemand",
-    "misverstand","Nederland","ochtend","ontzettend","platteland","raadsel",
-    "spannend","standaard","tulband","uitstekend","vanavond","verkeerd",
-    "verliefd","voedzaam","wedstrijd","wereld","woedend","Zeeland","zeldzaam",
-    "abonnement","afkomst","agent","apart","apparaat","artiest","asfalt",
-    "beschuit","beslist","beurt","bijeenkomst","Brabant","bruiloft","docent",
-    "cement","charmant","compleet","compliment","componist","concert","consument",
-    "constant","contact","couplet","deodorant","dirigent","dominant","emigrant",
-    "etiket","experiment","fabrikant","geschikt","helft","herfst","hyacint",
-    "immigrant","imposant","interessant","irritant","journalist","kandidaat",
-    "klimaat","krokant","limiet","muzikant","pamflet","pastel","perfect",
-    "sponsor","standaard","tegenwoordig","temperatuur","toernooi","trompet",
-    "turbine","twintig","uitzondering","vakkundig","grondwet","handbagage",
-    "ijzertijd","landbouwsector","muntthee","natuurgebied","razendsnel",
-    "spinnenweb","thuisfront","thuiswedstrijd","verbodsbord","werkgelegenheid"
+  "Aai-ooi-oei-woord": _fw([
+    "aai","bemoeial","bemoeien","boeien","dooier","gloeien","groeien","haai",
+    "hooikoorts","knoeien","kraai","lawaai","loeiend","moeizaam","mooi",
+    "ooievaar","prooi","roeien","saai","snoeien","sproeien","taai",
+    "toernooi","vloeiend"
   ]),
 
-  "Achtervoegsel": _fw([
-    "aankondigen","aanmoedigen","akelig","bergachtig","bevestigen","bezichtigen",
-    "bezuinigen","doorzichtig","draaierig","drassig","driftig","droevig",
-    "dromerig","duizelig","eeuwig","eigenaardig","eindigen","fleurig","geduldig",
-    "geestig","gelukkig","geneeskrachtig","geniepig","gevoelig","geweldig",
-    "gewichtig","gezellig","giftig","glibberig","grappig","griezelig","gunstig",
-    "handig","harig","hebberig","heilig","heldhaftig","hevig","hongerig",
-    "hoogmoedig","humeurig","ijverig","jeugdig","kleurig","kleverig","koppig",
-    "krachtig","kundig","lastig","levendig","lollig","luidruchtig","machtig",
-    "nauwkeurig","nieuwsgierig","nuttig","onstuimig","pittig","plechtig",
-    "plezierig","regelmatig","roestig","rumoerig","spoedig","statig",
-    "tegenwoordig","twintig","uitnodigen","vakkundig","veilig","verdediger",
-    "verkondigen","vernietigen","vervaardigen","volledig","waardig","wollig",
-    "zalig","zenuwachtig","zonnig","zorgvuldig","zuinig",
-    "aannemelijk","aantrekkelijk","afgrijselijk","afstandelijk","afschuwelijk",
-    "avontuurlijk","behoorlijk","belachelijk","besmettelijk","dagelijks",
-    "eerlijk","eigenlijk","eindelijk","erbarmelijk","fatsoenlijk","feestelijk",
-    "figuurlijk","gemakkelijk","gemeenschappelijk","gevaarlijk","gruwelijk",
-    "hartelijk","heerlijk","huiselijk","huishoudelijk","huwelijk","jaarlijks",
-    "klaaglijk","koninklijk","kwalijk","landelijk","lelijk","maatschappelijk",
-    "menselijk","misselijk","moeilijk","natuurlijk","nauwelijks","noorderlijk",
-    "onafhankelijk","openlijk","pijnlijk","smakelijk","stedelijk","tamelijk",
-    "tijdelijk","toegankelijk","uiterlijk","verantwoordelijk","vermakelijk",
-    "verrukkelijk","verschrikkelijk","vreselijk","vriendelijk","vrolijk",
-    "waarschijnlijk","wekelijks","werkelijk","westelijk","wonderlijk",
-    "zakelijk","zuidelijk"
+  "Eeuw-ieuw-woord": _fw([
+    "eeuwen","kieuwen","leeuw","leeuwen","nieuwbouwwijk","nieuwe",
+    "nieuweling","nieuwjaarsdag","nieuwkoop","nieuws","nieuwsgierig",
+    "nieuwsgierigheid","opnieuw","schreeuwde","schreeuwen","schreeuwerig",
+    "sneeuw","sneeuwballen","sneeuwklokjes","sneeuwstorm","spreeuwen",
+    "vernieuwen","vernieuwing","Zeeuws"
   ]),
 
-  "Verkleinwoord": _fw([
-    "bedankje","berichtje","broodje","chipje","concertje","eendje","gebakje",
-    "gedichtje","hartje","ijsje","kindje","lichtje","liedje","meisje",
-    "optochtje","portretje","restaurantje","schelpje","servetje","speculaasje",
-    "sprintje","stadje","tabletje","vriendje","woordjes","bureautje",
-    "cadeautje","cirkeltje","eentje","eitje","fonteintje","heuveltje",
-    "kleurtje","krantje","taartje","ballonetje","belletje","bloemetje",
-    "bolletjes","bommetje","celletje","gezinnetje","hotelletje","karretjes",
-    "kippetje","kommetje","lammetje","mannetje","poppetje","slabbetje",
-    "spinnetjes","spionnetje","stemmetjes","sterretje","vlaggetje",
-    "vriendinnetje","weggetje","zonnetje","dingetje","gangetje","jongetje",
-    "slangetje","wandelingetje","sneeuwklokjes","theeblaadjes","meelwormpjes"
-  ]),
-
-  "Korte klank": _fw([
-    "aardappelen","abonnement","allerlei","alles","allicht","Assen","attent",
-    "ballon","bakkerij","batterij","beginnen","bestemming","cellen","cello",
-    "collectie","courgettes","fossiel","gammel","geheimzinnig","gelukkig",
-    "gemiddeld","gespannen","gevallen","glitters","grappig","hebberig","helling",
-    "herrie","hobby","Holland","immigrant","intelligent","kajakken","kikkers",
-    "kudde","ligging","lolly","officieel","officier","rillingen","sappig",
-    "schrikken","sinaasappels","sorry","terras","vergezellen","verklappen",
-    "verrassen","verrukkelijk","versnellen","gaswinning","glazenwasser",
-    "immuunsysteem","knipperlichten","politiemannen","spinnenweb","essentieel",
-    "intelligent","maatschappij","oppervlak","paddenstoel","pakket","perron",
-    "platteland","puppy","Russisch","schatting"
-  ]),
-
-  "Lange klank": _fw([
-    "Afrika","Afrikanen","akelig","Ameland","Amersfoort","Apeldoorn","apotheek",
-    "arena","arend","aannemelijk","Arabier","avond","bacterie","beleven",
-    "beoordelen","beweging","bewoners","bibliotheek","biologisch","bovendien",
-    "Brabant","dagelijks","definitie","digitaal","dirigeren","docent","dominant",
-    "douane","emotioneel","enorm","enzovoort","ervaring","etiket","evenaar",
-    "eveneens","evenement","examen","exotisch","expositie","finale","fluweel",
-    "furieus","garage","geloven","genezen","geniaal","glazuur","globe","gratie",
-    "Groningen","haringen","helaas","horizon","huwelijk","idealen","imitatie",
-    "indianen","insmeren","journalist","joviaal","juweel","kajakken","kastelen",
-    "kleding","kleverig","komisch","konijnen","koraal","krokant","kwaliteit",
-    "lading","ledikant","lelijk","lenig","lezing","lianen","lichamen","logisch",
-    "loket","lotion","marathon","medicijn","meteor","microfoon","modieus",
-    "motor","muziek","muzikant","najaar","Nederland","negeren","nomaden",
-    "Noorwegen","notitie","oceanen","oktober","olifant","omgeving","Pasen",
-    "piramide","Pluto","podium","positie","positief","probleem","procent",
-    "producent","provincie","relatie","riskeren","schaduw","schemering",
-    "serieus","sirene","slagerij","slalom","smederij","speciaal","sprakeloos",
-    "stadion","statig","tafereel","talloze","tapir","tekening","telefoon",
-    "televisie","temperatuur","tevreden","fotokopieen","hemellichamen",
-    "honingmeloen","paradijsvogel","razendsnel","rozengeur","spaarrekening",
-    "spijsvertering","waterreservoir","wereldeconomie"
-  ]),
-
-  "Aai/Ooi/Oei": _fw([
-    "aaien","baaien","bloeien","haaien","draaierig","gesnoeid","glooien",
-    "knoeien","kraaien","lawaai","moeilijk","moeizaam","nooit","omdraaien",
-    "ontdooien","ooievaar","opgroeien","saaie","sproeien","strooien","toernooi",
-    "uitwaaien","vermoeid","waaien","vloeistof","bloesem","boeket","groeit"
-  ]),
-
-  "Eeuw/Ieuw": _fw([
-    "eeuw","eeuwig","leeuwerik","meeuwen","middeleeuwen","schreeuwen","sneeuwen",
-    "spreeuwen","kieuwen","nieuweling","nieuwsgierig","opnieuw","benieuwd",
-    "leeuwin","kapotsneeuw"
-  ]),
-
-  "Tropisch woord": _fw([
-    "agrarisch","akoestisch","alfabetisch","allergisch","Arabisch","archeologisch",
-    "atletisch","automatisch","chemisch","democratisch","dramatisch","dynamisch",
-    "economisch","elektrisch","exotisch","fantastisch","gigantisch","historisch",
-    "hysterisch","komisch","kosmisch","kritisch","logisch","magisch","magnetisch",
-    "medisch","optimistisch","Perzisch","praktisch","ritmisch","romantisch",
-    "Russisch","statisch","synthetisch","technisch","thematisch","theoretisch",
-    "toeristisch","tragisch","tropisch","typisch","vegetarisch"
-  ]),
-
-  "Kilowoord": _fw([
-    "activiteit","artikel","assistent","assortiment","bibliotheek","biologisch",
-    "bizarre","carnivoren","centimeter","citroen","combinatie","competitie",
-    "compliment","conditie","definitie","diamant","dieet","digitaal","dinosaurus",
-    "diploma","directeur","dirigent","diverse","emigrant","epicentrum","etiket",
-    "expeditie","experiment","expositie","fabrikant","familie","februari",
-    "festival","finale","gigantisch","giraf","gitaar","grandioos","helikopter",
-    "horizon","horizontaal","ideaal","illustratie","imitatie","immigrant",
-    "improviseren","indianen","individueel","insecten","inspecteur","internaat",
-    "inventief","jubileum","kandidaat","kantine","kapitein","klarinet","klimaat",
-    "kliniek","kritiek","kritisch","kwaliteit","lampion","ledikant","lianen",
-    "limiet","limonade","lucifer","macaroni","machine","machinist","marine",
-    "maximaal","maximum","media","medicijn","meditatie","microfoon","microscoop",
-    "millimeter","minimaal","minimum","minister","minuut","modieus","muzikant",
-    "niveau","notitie","officier","olifant","optimist","organiseren","pagina",
-    "paprika","piano","piloot","piraat","piramide","pistool","podium","politie",
-    "politiek","positie","positief","president","privé","radio","religie",
-    "repetitie","riolering","riool","risico","ritueel","rivaal","rivier",
-    "safari","schorpioen","serieus","sigaar","sinaasappel","sirene","siroop",
-    "situatie","souvenir","speciaal","spinazie","spion","spiraal","stadion",
-    "studio","tapir","televisie","territorium","titel","toernooi","turbine",
-    "uniform","universum","variatie","viaduct","video","virus","vitamine","viool"
-  ]),
-
-  "Centwoord": _fw([
-    "accent","ambulance","cel","cello","cellulose","Celsius","cement","cent",
-    "centimeter","ceremonie","cijfer","cilinder","circa","circus","cirkel",
-    "citroen","concentreren","concert","docent","decibel","decimaal","felicitatie",
-    "financieel","hyacint","lucifer","medicijn","oceaan","officier","ontcijferen",
-    "pincet","precies","principe","procent","producent","provinciaal","publiceren",
-    "recept","succes","vaccin","concertgebouw","poolcirkel","succesvolle"
-  ]),
-
-  "Theewoord": _fw([
-    "apotheek","bibliotheek","discotheek","marathon","methode","mythe",
-    "mythologie","stethoscoop","sympathiek","synthetisch","theater","thee",
-    "thema","thematisch","theorie","therapie","thermometer","thermostaat",
-    "lichtterapie","muntthee","thuisfront","thuiswedstrijd","theeblaadjes",
-    "symfonieorkest"
-  ]),
-
-  "Chefwoord": _fw([
-    "affiche","architect","brunch","capuchon","chantage","charmant","chef",
-    "chemie","chemicus","chic","chimpansee","chocolade","chirurg","douchen",
-    "ketchup","lunch","machine","machinist","manchetten","marcheren",
-    "nonchalant","parachute","poncho","rechercheur","boormachine",
-    "manchetknopje","rekenmachine","stoomachine"
-  ]),
-
-  "Garagewoord": _fw([
-    "asperges","baggage","camouflage","chantage","collage","energie","etage",
-    "etalage","garage","genie","horloge","massage","manege","passage",
-    "passagier","percentage","personage","plantage","rapportage","ravage",
-    "rouge","spionage","stage","handbagаge","sportmassage"
-  ]),
-
-  "Lollywoord": _fw([
-    "analyse","cycloon","dynamo","dynamisch","dyslexie","fysiotherapie","gym",
-    "gymnastiek","hobby","hyacint","hysterisch","koolhydraten","lobby","lolly",
-    "mythe","mythologie","mysterie","olympisch","pony","puppy","pyjama","royaal",
-    "rugby","symbool","symfonie","sympathiek","synthetisch","systeem","trendy",
-    "type","typen","typisch","xylofoon","yoga","yoghurt","hobbykok","teddybeer"
-  ]),
-
-  "Routewoord": _fw([
-    "camouflage","couplet","coupon","coureur","courgette","douane","douche",
-    "journalist","gouverneur","retour","rouge","route","routine","silhouet",
-    "souvenir","tour","toernooi","troubadour","autoroute","routebeschrijving"
-  ]),
-
-  "Caféwoord": _fw([
-    "depot","detail","niveau","plateau","schema","bureau","cadeau","tableau",
-    "buurtcafe","eetcafe","lunchcafe","satésaus","treincoupé"
+  "Langmaakwoord": _fw([
+    "deodorant","dominant","experiment","journalist","logopedist","loket",
+    "machinist","muzikant","Nederland","ochtend","ontzettend","piloot",
+    "platteland","procent","project","raadsel","rapport","spannend",
+    "sprankelend","standaard","tandarts","uitstekend","vanavond","verkeerd",
+    "vermoedelijk","woedend","Zeeland","zeldzaam"
   ]),
 
   "Voorvoegsel": _fw([
-    "bedenken","beleven","bereiken","beschermen","bewegen","bezorgen",
-    "beginnen","bereiden","belonen","benutten","beoordelen","berichten",
-    "besluiten","bespreken","bestuderen","betalen","betreden","bevatten",
-    "bevragen","beweren","beziten",
-    "vergeten","verklaren","vermaken","verwijzen","verzamelen","verbeteren",
-    "vernieuwen","vervangen","verkennen","verdienen","vertrouwen","verbinden",
-    "verdiepen","vergroten","verhogen","verkopen","verlichten","verminderen",
-    "verrijken","verschuiven","versterken","vertellen","verwijderen",
-    "ontdekken","ontmoeten","ontvangen","ontwikkelen","ontsnappen","ontkomen",
-    "ontwerpen","ontwijken","onthullen","ontbreken","ontlopen","ontregelen",
-    "herdenken","herhalen","herstellen","herzien","herinneren","herbouwen",
-    "herkennen","hervatten","herbeginnen","hergebruiken","herleven","hernoemen",
-    "misverstand","mislukken","misbruik","misleiden","mislukt","misgunnen"
+    "bedanken","begeleider","begrijpen","behalen","behoorlijk",
+    "bekeuringen","beloning","beroemd","beschrijven","bespreken",
+    "bestemming","bevestigen","beweging","bezitten","gebied","gebruiken",
+    "geduldig","geleidelijk","gemeente","gereedschap","geschiedenis",
+    "gevangenis","gewoon","ontdekken","onthouden","ontmoeten","ontsnappen",
+    "veranderen","verbazen","verdedigen","verduidelijken","vergadering",
+    "verhalen","verhouding","verlichting","verminderen","vermoeden",
+    "verrassen","verslag","verzorgen"
+  ]),
+
+  "Klankgroepenwoord": _fw([
+    "bananen","beginnen","boter","getallen","gewone","jager","kamer",
+    "kanonnen","kapotte","limonade","meter","minuten","moderne","muzikaal",
+    "notulen","pakket","papieren","piloten","raketten","salade","sigaren",
+    "telefoneren","tomaten","vitamine"
+  ]),
+
+  "Verkleinwoord": _fw([
+    "aardappelslaatje","afbeeldinkje","agendaatje","armpje","autootje",
+    "ballonnetje","bedankje","beeldje","beestje","belletje","beloninkje",
+    "berichtje","beweginkje","bloemetje","bodempje","bolletjes","bommetje",
+    "boterhammetje","botjes","brilletje","broodje","bruggetje","bureautje",
+    "cadeautje","cameraatje","celletje","cellootje","chipje","chocolaatje",
+    "cijfertje","cirkeltje","citroenschijfje","collegaatje","concertje",
+    "dingetje","eekhoorntjesbrood","eendje","eentje","eitje","elastiekje",
+    "erwtjes","Eskimootje","eurootje","extraatje","filmpje","fonteintje",
+    "fotootje","gangetje","gebakje","gedichtje","gerechtje","gezinnetje",
+    "gorillaatje","harinkje","hartje","hellinkje","helmpje","heuveltje",
+    "hobootje","hotelletje","hyenaatje","iglootje","ijsje","jongetje",
+    "kalfje","kameleonnetje","kanootje","karretjes","karweitje","kassaatje",
+    "kettinkje","kilootje","kindje","kippetje","kleurtje","kommaatje",
+    "kommetje","kraantje","krakelingetje","kringetje","kwaleltjes",
+    "kwartiertje","laatje","lamaatje","lammetjes","leeuwtje","lichtje",
+    "liedje","lieveheersbeestjes","logootje","manchetknoopje","mangootje",
+    "mannetje","meelwormpjes","meisje","menuutje","mobieltje","museumpje",
+    "naampje","nieuwtje","ommetje","onderdeeltje","optochtje","pandaatje",
+    "papiertje","paprikaatje","parapluutje","partijtje","peutertje",
+    "pianootje","pindaatje","pleistertje","podiumpje","poppetje","portretje",
+    "prieeltje","prooitje","puddinkje","pyjamaatje","radiootje",
+    "restaurantje","retourtje","rijmpje","rillinkje","ringetje","riviertje",
+    "schelpje","schemaatje","schilderijtje","schuttinkje","servetje",
+    "slaatje","slabbetje","slangetje","sleuteltje","sluitinkjes",
+    "sneeuwklokjes","speculaasje","spinnetjes","spionnetje","spreeuwtje",
+    "sprintje","sprongetje","stadje","stationnetje","stemmetjes","sterretje",
+    "stormpje","tabletje","tangetje","tapijtje","tartaartje","telefoontje",
+    "terrasje","theatertje","theeblaadjes","touwtjes","trommeltje",
+    "vergissinkje","verrassinkje","verwarminkje","vlaggetje","vlooitje",
+    "vriendinnetje","vriendje","vrouwtje","wandelingetje","weggetje",
+    "winterkoninkje","woninkje","woordjes","wormpje","yoghurtijsje","zalfje",
+    "zebraatje","zomerkoninkjes","zonnetje","zwijntje"
+  ]),
+
+  "Achtervoegsel": _fw([
+    "aankondigen","aanmoedigen","aannemelijk","aantrekkelijk","adellijke",
+    "afgrijselijk","afschuwelijk","afstandelijk","akelig","angstig",
+    "avontuurlijk","behoorlijk","belachelijk","bergachtig","besmettelijk",
+    "bevestigen","bezichtigen","bezuinigen","dagelijks","doorzichtig",
+    "draaierig","drassig","driftig","droevig","dromerig","duizelig",
+    "eerlijk","eeuwig","eigenaardig","eigenlijk","eindelijk","eindigen",
+    "erbarmelijk","fatsoenlijk","feestelijk","feitelijk","figuurlijk",
+    "fleurige","geduldig","geestig","geldig","gelukkig","gemakkelijk",
+    "gemakkelijker","gemeenschappelijk","geneeskrachtig","geniepig",
+    "gevaarlijk","gevoelig","geweldig","gewichtig","gezellige","giftig",
+    "glibberig","grappig","griezelig","grondig","gruwelijk","gunstig",
+    "handig","harig","hartelijk","hebberig","heerlijke","heilig",
+    "heldhaftig","hevig","hongerig","hoogmoedig","hoogwaardig","huiselijk",
+    "huishoudelijk","humeurig","huwelijk","ijverig","jaarlijks","jeugdig",
+    "keurig","klaaglijk","kleverig","knapperig","koninklijk","koppig",
+    "krachtig","krakkemikkig","kundig","kunstig","kwalijk","landelijk",
+    "lastig","lelijk","levendig","lollig","luchtig","luidruchtig",
+    "maatschappelijk","machtig","makkelijk","menselijk","misselijk",
+    "moeilijk","natuurlijk","nauwelijks","nauwkeurig","nieuwsgierig",
+    "noordelijk","nuttig","onafhankelijk","onmiddellijk","onstuimig",
+    "onvermijdelijke","oostelijk","openlijk","partijdig","pijnlijk",
+    "pijnlijke","pittig","plechtig","plezierig","prachtige","raadselachtig",
+    "regelmatig","rijkelijk","roestig","rumoerig","scheikundige","schemerig",
+    "schreeuwerig","slaperig","slordig","smakelijke","smerig","spoedig",
+    "statig","stedelijk","stoffig","tamelijk","tegenwoordige","tijdelijk",
+    "toegankelijk","twintig","uiterlijk","uitnodigen","vakkundig","veilig",
+    "verantwoordelijk","verdediger","verduidelijken","vereeuwigen",
+    "verkondigen","vermakkelijk","vernietigen","verrukkelijk",
+    "verschrikkelijk","vervaardigen","vierentwintig","vijandig","vlijtig",
+    "volledig","voorzichtig","vorige","vreselijk","vriendelijk","vrolijke",
+    "waardig","waarschijnlijk","wantrouwig","weemoedig","weinig","wekelijks",
+    "werkelijk","westelijk","willekeurig","wollig","wonderlijk","zakelijk",
+    "zalig","zenuwachtig","zestiger","zonnig","zorgvuldig","zuidelijk",
+    "zuinig"
+  ]),
+
+  "Kilowoord": _fw([
+    "abrikozen","activiteit","actrice","affiche","affiches","afhaalchinees",
+    "Afrika","Amerika","Amerikaanse","Antarctica","antilopen","arriveren",
+    "artikel","assistent","assortiment","auditie","Aziatisch","baviaan",
+    "benzine","bespioneren","bibliotheek","bikini","biologisch","bizarre",
+    "bizons","carnivoren","cavia","centiliter","centimeter","China","Chinese",
+    "chirurg","citroen","citroenen","collegiaal","combinatie","commercieel",
+    "competitie","compliment","conditie","Constantinopel","continent",
+    "definitief","dia","diagonaal","diamant","diameter","dictatoriaal",
+    "dieet","digitale","dinosaurus","diploma","directeur","dirigent",
+    "dirigeren","divan","diverse","Dolfinarium","emigrant","emotioneel",
+    "epicentrum","Eskimo","essentieel","etiket","expeditie","experiment",
+    "expositie","fabrikant","familie","februari","feliciteren","festival",
+    "figuur","file","filiaal","finaal","finale","financieel","geniaal",
+    "gigantisch","giraf","gitaar","grandioos","helikopter","horizon",
+    "horizontaal","hybride","ideaal","idee","idem","idool","iglo","illegaal",
+    "illustratie","illustrator","imitatie","imiteren","immigrant","imperiaal",
+    "improviseren","indianen","individueel","industrieel","inspiratie",
+    "inspireren","internationaal","invalide","Irakees","iris","irritant",
+    "irriteren","Italianen","ivoor","januari","joviaal","jubileum","juli",
+    "juni","kabinet","kampioen","kandidaat","kantine","kapitein","kariboe",
+    "kilo","kilogram","kilometer","kiosk","kiwi","klarinet","klimaat",
+    "kliniek","koloniaal","krioelen","kritiek","kritisch","kwaliteit",
+    "lampion","lawine","ledikant","liaan","lianen","libel","lila","limiet",
+    "limoenen","limonade","liniaal","liter","loempia","lotion","lucifer",
+    "macaroni","machine","machinist","marine","materiaal","Maxima",
+    "maximaal","maximum","media","medicijn","medicijnen","meditatie",
+    "mediteren","microfoon","microscoop","millimeter","mini","minimaal",
+    "minimum","minister","minuut","mitella","modieus","munitie","muzikaal",
+    "muzikant","nasi","nationaal","Nina","niveau","notitie","officieel",
+    "officier","olifant","optimist","organiseren","pagina","paprika",
+    "Patricia","piano","piloot","pion","piraat","piraterij","piste",
+    "pistool","podium","politie","politiek","positie","positief","president",
+    "prieel","prima","principieel","radio","regionaal","rekenmachine",
+    "religie","repetitie","riolering","riool","risico","ritueel","rivaal",
+    "rivier","safari","schorpioen","serieus","sigaar","silo","sinaasappel",
+    "sinaasappels","sinas","sirene","siroop","situatie","ski","sociaal",
+    "souvenir","souvenirwinkel","speciaal","speciaals","speciale","spinazie",
+    "spion","spiraal","stadion","station","stoommachine","studio","Suriname",
+    "tapir","televisie","territorium","Tine","titel","tosti","traditie",
+    "traditioneel","trampoline","transpireren","triangel","tribune","trio",
+    "turbine","uniform","universum","urine","variatie","via","viaduct",
+    "video","Vikingen","violet","viool","virus","visite","vitamine",
+    "vitamines","vitrine","vliegmachine","zigeuner"
+  ]),
+
+  "Centwoord": _fw([
+    "accent","acceptabele","actrice","ambulance","balanceren","cel","cello",
+    "cellulose","Celsius","cement","cent","centiliter","centimeter","centra",
+    "centrale","centrum","ceremonie","cider","cijfer","cilinder","circa",
+    "circus","cirkel","citroen","citroencake","citroenschijfje",
+    "communiceren","concentreren","concert","concertgebouw","cruciaal",
+    "december","decibel","decimaal","docent","emancipatie","encyclopedie",
+    "epicentrum","fabriceren","felicitatie","financieel","gecompliceerd",
+    "geconcentreerd","hyacint","identificeren","incidenteel","lancering",
+    "lucifer","medicijn","musiceren","oceaan","officieel","ontcijferen",
+    "openingsceremonie","Patricia","pincet","poolcirkel","precies",
+    "principe","principieel","procent","producent","provinciaal","provincie",
+    "publiceren","racisme","recensie","recept","sociale","specerij",
+    "speciale","specialist","succes","succesvolle","technici","vaccinatie"
   ]),
 
   "Politiewoord": _fw([
-    "politie","actie","conditie","collectie","competitie","definitie",
-    "emotie","expeditie","expositie","fictie","fractie","functie",
-    "infectie","informatie","inspectie","instructie","inventie","reactie",
-    "relatie","repetitie","revolutie","situatie","traditie","variatie",
-    "promotie","portie","positie","sectie","natie","notitie","operatie",
-    "productie","reductie","selectie","injectie","constructie","attractie",
-    "demonstratie","educatie","evaluatie","formatie","generatie","imitatie",
-    "medicatie","meditatie","motivatie","navigatie","organisatie",
-    "presentatie","publicatie","spectatie","vibratie","adaptatie","adoptie",
-    "communicatie","concentratie","confiscatie","conversatie","cooperatie",
-    "decoratie","dictatie","duplicatie","eliminatie","faciliteit","fascinatie",
-    "federatie","fixatie","fondatie","graduatie","hospitalisatie","imitatie",
-    "initiatie","integratie","interpretatie","intimidatie","investigatie",
-    "invitatie","isolatie","iteratie","legioen","liberatie","locatie",
-    "moderatie","mutatie","nominatie","occupatie","participatie","plagiaat",
-    "populatie","processie","proclamatie","proportie","provocatie"
+    "accommodatie","actie","actiefilms","administratie","administratiekosten",
+    "arrestatie","attractie","collectie","combinatie","communicatie",
+    "competitie","conditie","consultatiebureau","democratie","discriminatie",
+    "emotie","expeditie","expositie","felicitatie","functie","generatie",
+    "illustratie","imitatie","infectiegevaar","informatie","installatie",
+    "instructie","locatie","medicatie","melkproductie","notitie","operatie",
+    "organisatie","politie","politiebureau","politiemannen","politiemensen",
+    "positie","prestatie","reactie","reanimatie","reflectie",
+    "reisorganisatie","repetitie","revolutie","situatie","traditie",
+    "turbulentie","vakantie","variatie","vleesconsumptie"
   ]),
 
   "Colawoord": _fw([
-    "cola","code","cobra","cocon","coma","concert","contact","contract",
-    "computer","controleren","combinatie","constructie","consumptie",
-    "collectie","competitie","compliment","conditie","conducteur",
-    "congres","correct","corridor","cosmos","couleur","courant",
-    "couvert","corpus","cornet","corvee","coupure","creatie",
-    "crisis","criteria","crypte","cactus","calorie","camera","camping",
-    "campus","canal","capaciteit","cargo","catalog","categorie",
-    "causaal","centraal","centreren","circulaire","citadel","citaat",
-    "commissie","communicatie","concentratie","conclusie","conferentie",
-    "confiscatie","conjunctuur","context","continueren","controle"
+    "accent","accepteren","accordeon","acrobaat","actiefilms","activiteit",
+    "actrice","actueel","Antarctica","attractie","bacterie","bioscoop",
+    "broeikaseffect","cactussen","cadeau","calorie","camouflage","Canada",
+    "carnivoor","categorie","chemicus","chic","circa","cocon","cola",
+    "collage","collega","Columbus","combinatie","commandant","commentaar",
+    "competitie","compliment","componist","compost","concentratie","concert",
+    "condens","conditie","conducteur","Constantinopel","constatering",
+    "constructie","consumptie","contant","continent","contract","controle",
+    "coupe","couplet","courgettes","creatief","crisis","cruciaal","cultuur",
+    "cursus","decor","decorontwerper","democratie","dialecten","dictee",
+    "direct","directeur","discriminatie","discussie","documenten",
+    "ecosysteem","effect","encyclopedie","exact","excursie","excuses",
+    "functie","Heracles","historicus","horeca","injectie","insecten",
+    "insectenlarve","inspecteur","instructie","landbouwsector","locatie",
+    "macaroni","mascara","melkproductie","microscoop","musicus","nectar",
+    "octopus","perfect","pictogram","politicus","product","projector",
+    "reactie","reclames","redactielid","respect","risico","script",
+    "seconde","selectie","speculaasje","stethoscoop","succes","succesvolle",
+    "tactiek","telescoop","truc","tuberculose","vaccinatie","verticale",
+    "viaduct","vleesconsumptie","wereldeconomie"
+  ]),
+
+  "Tropisch-woord": _fw([
+    "agrarisch","akoestische","alfabetisch","allergische","Arabisch",
+    "archeologische","Atlantische","atletisch","automatisch","Aziatisch",
+    "Belgische","Bosnisch","chemische","democratisch","dramatisch",
+    "dynamisch","economisch","elektrisch","exotisch","fantastisch",
+    "gigantisch","historisch","hysterisch","idealistisch","Indische",
+    "komisch","kosmisch","kritisch","logisch","magisch","magnetisch",
+    "medisch","optimistisch","Perzisch","praktische","ritmische",
+    "romantisch","Russische","Scandinavische","specialistische","sporadisch",
+    "statisch","Syrische","technische","telefonisch","thematisch",
+    "theoretisch","toeristisch","tragisch","tropische","typisch",
+    "vegetarische"
   ]),
 
   "Taxiwoord": _fw([
-    "taxi","extra","exact","complex","textiel","luxe","maximum","index",
-    "reflex","paradox","expeditie","exotisch","examen","expositie",
-    "experiment","expert","extensie","extern","excursie","excellentie",
-    "exclusief","exemplaar","exercitie","executie","examineren",
-    "exploderen","exploreren","exporteren","exposeren","extensief",
-    "extraordinair","matrix","prefix","suffix","latex","sphinx",
-    "hexagon","oxyde","flexibel","reflexief","annexeren","taxateur",
-    "taxichauffeur","taximeter","exactheid","complexiteit","luxueus"
+    "Ajax","Alex","Alexander","Beatrix","box","chatbox","claxon","complex",
+    "dyslexie","exact","examen","excursie","excuses","exemplaar","exotisch",
+    "expeditie","experiment","experimenteel","explosie","export","expositie",
+    "expres","expressie","extra","extreem","fax","faxen","Felix","index",
+    "luxe","Luxemburg","Max","maxi","Maxima","maximaal","maximum","Mexico",
+    "mix","mixen","mixer","saxofoon","sfinx","taxi","textiel","wax",
+    "xylofoon"
+  ]),
+
+  "Chefwoord": _fw([
+    "afdelingschef","affiche","affiches","afhaalchinees","architect",
+    "architectenbureau","blancheren","boormachine","brunch","capuchon",
+    "chagrijnig","chantage","chanteren","charmante","chef","cheffin","chic",
+    "chili","Chili","chimpansee","China","Chinese","chips","chirurg",
+    "chocolade","douchen","fiche","ketchup","kopieermachine","lunch",
+    "lunchen","lunchgerecht","machine","machinist","manchetknoopje",
+    "manchetten","marcheren","nonchalant","parachutes","poncho",
+    "rechercheur","rekenmachine","stoommachine","vliegmachine"
+  ]),
+
+  "Theewoord": _fw([
+    "apotheek","Athene","bibliotheek","cantharellen","discotheek","marathon",
+    "methode","muntthee","mythe","mythologie","stethoscoop","sympathiek",
+    "synthetisch","theater","thee","theeblaadjes","theedoek","thema",
+    "thematisch","theorie","therapie","thermometer","thermosfles",
+    "thermostaat","thuis","thuisfront","thuiswedstrijd"
+  ]),
+
+  "Cadeauwoord": _fw([
+    "architectenbureau","bureau","cadeau","niveau","plateau","plumeau",
+    "politiebureau","reisbureau","spreekniveau","waterniveau"
+  ]),
+
+  "Routewoord": _fw([
+    "autoroute","camouflage","couplet","coupon","coureur","courgette",
+    "couveuse","douane","douche","douchen","gouverneur","handelsroutes",
+    "journaal","journalist","retour","rouge","route","routebeschrijving",
+    "routine","silhouet","sluiproute","souvenir","souvenirwinkel","tour",
+    "tournee","troubadour"
+  ]),
+
+  "Garagewoord": _fw([
+    "asperges","bagage","camouflage","chantage","collage","college",
+    "corsage","courgettes","energie","energiebron","etage","etalage",
+    "garage","genie","giraffes","handbagage","horloge","lekkage","logeren",
+    "manege","massage","page","passage","passagier","percentage",
+    "personages","plantages","rage","rapportage","ravage","rouge","slijtage",
+    "spionage","sportmassage","stage","stellage","tatoeage","vitrage"
+  ]),
+
+  "Lollywoodwoord": _fw([
+    "analyse","cycloon","dynamisch","dynamo","dynastie","dyslexie","Egypte",
+    "encyclopedie","fysiotherapie","gym","gymnastiek","gymzaal","Harry",
+    "hobby","hobbykok","hyacint","hybride","hyena","hysterie","hysterisch",
+    "Jenny","koolhydraten","labyrint","Lelystad","lobby","lolly","mysteries",
+    "mysterieuze","mythe","mythologie","Olympische","pony","puppy","pyjama",
+    "pythons","royaal","rugby","sorry","symbool","symfonie","symfonieorkest",
+    "sympathieke","synthetisch","Syrische","systeem","teddybeer","trendy",
+    "tyfoon","type","typen","typisch","Wendy","xylofoon","yoga","yoghurt",
+    "yoghurtijsje"
   ]),
 
   "Militairwoord": _fw([
-    "militair","populair","vulgair","solitair","familiair","elementair",
-    "commentaar","documentair","functionair","honorair","humaan",
-    "kamenier","komisaris","ordinair","planetair","primair","revolutionair",
-    "salutair","sanitair","seculair","solidair","spectaculair","subsidiair",
-    "veterinair","voluntair","auxiliair","complementair","memorair",
-    "singulier","speciaal","structurair","territoriaal","tropisch",
-    "uniformair","veteraan","vitaal"
+    "autoritair","Bonaire","culinair","familiair","flair","literair",
+    "meubilair","militair","miljardair","miljonairs","ordinair",
+    "parlementair","populair","populaire","primair","sanitair","solidair",
+    "solitaire","spectaculair","tuinmeubilair"
   ]),
 
   "Trottoirwoord": _fw([
-    "trottoir","reservoir","boudoir","pissoir","directoire","armoire",
-    "mémoire","humoir","glamour","labour","velour","tambour","contour",
-    "detour","four","iour","iour","rigour","savour","splendour",
-    "ardour","colour","favour","flavour","valour","vapour","vigour",
-    "honour","humour","labour","neighbour"
+    "dressoir","gasreservoir","memoires","reservoir","trottoir","urinoir",
+    "waterreservoir","zoetwaterreservoir"
+  ]),
+
+  "Latijns voorvoegsel": _fw([
+    "abces","abdij","abnormaal","abrupt","absent","absoluut","absorberen",
+    "abstract","absurd","adjudant","adjunct","administratie",
+    "administratiekosten","admiraal","advent","advertentie","advies",
+    "adviezen","advocaat","object","objectief","observatie","observeren",
+    "obsessive","obstakel","subcategorie","subgroep","subsidie","substantie",
+    "substantieel","subtiel","subtitel","subtotaal","subtropisch"
+  ]),
+
+  "Komma-s-woord": _fw([
+    "'s avonds","'s maandags","'s middags","'s morgens","'s nachts",
+    "'s ochtends","'s werelds","'s winters","'s woensdags","'s zaterdags",
+    "'s zomers","'s zondags"
+  ]),
+
+  "Caféwoord": _fw([
+    "buurtcafé","café","comité","coupé","eetcafé","hé","José","logé",
+    "lunchcafé","oké","paté","privé","privébezitting","privégebruik",
+    "privéinformatie","privéterrein","René","rosé","saté","satésaus",
+    "taugé","treincoupé"
+  ]),
+
+  "Komma-s-meervoud": _fw([
+    "Ada's","alibi's","Anna's","ara's","arena's","auto's","banjo's",
+    "bikini's","camera's","cello's","cobra's","collega's","commando's",
+    "curry's","dia's","diploma's","drama's","dynamo's","echo's","Eskimo's",
+    "euro's","Eva's","Evi's","extra's","farao's","flamingo's","foto's",
+    "gorilla's","Hanna's","Helma's","hobby's","hobo's","hyena's","iglo's",
+    "Ivo's","Jenny's","jury's","kano's","kassa's","kila's","kiwi's",
+    "koala's","komma's","lama's","Lara's","Laura's","Levi's","Lizzy's",
+    "lobby's","logo's","lolly's","luchtfoto's","mango's","massa's",
+    "Menno's","menu's","Mo's","motto's","Nina's","oma's","Onno's","opa's",
+    "opera's","orka's","Otto's","pagina's","panda's","paprika's","piano's",
+    "poncho's","pony's","prisma's","puppy's","pyama's","radio's","risico's",
+    "safari's","salto's","schema's","ski's","sofa's","solo's","sorry's",
+    "spiermassa's","taxi's","tendra's","thema's","Tommy's","tosti's",
+    "tuba's","zebra's"
+  ]),
+
+  "Koppelteken": _fw([
+    "auto-export","auto-onderdeel","auto-ongeluk","bingo-opbrengst",
+    "bureau-inhoud","choco-ijsje","diploma-uitreiking","ex-fruitteler",
+    "ex-kandidaat","ex-kunstenares","ex-leerling","ex-man","ex-voetballer",
+    "ex-vrouw","familie-uitje","gala-avond","garage-eigenaar","havo-examen",
+    "havo-klas","kassa-afdeling","klaar-over","media-aandacht","mee-eten",
+    "mini-jurk","na-apen","Nieuw-Zeeland","Noord-Holland","Noord-Korea",
+    "Noord-Limburg","Oost-Duitsland","oud-burgemeester","oud-collega",
+    "oud-militair","oud-monteur","pistache-ijs","ski-instructeur",
+    "solo-optreden","thee-ei","tosti-ijzer","tv-gids","tv-programma",
+    "tv-zender","wc-bril","wc-papier","West-Turkije","Zuid-Afrika",
+    "Zuid-Amerika","Zuid-Europa","Zuid-Frankrijk","Zuid-Korea"
   ]),
 
   "Tremawoord": _fw([
-    "actueel","eventueel","individueel","procentueel","visueel","ritueel",
-    "momenteel","officieel","essentieel","financieel","emotioneel",
-    "traditioneel","professioneel","sensationeel","nationeel","rationeel",
-    "informatief","creatief","educatief","effectief","definitief",
-    "primitief","progressief","representatief","selectief","sportief",
-    "objectief","subjectief","alternatief","conservatief","decoratief",
-    "demonstratief","descriptief","detectief","negatiefwoord"
+    "agrariër","Argentinië","Australië","Azië","beëindigen","beïnvloedbaar",
+    "beïnvloeden","België","Brazilië","Caïro","Californië","cliënt",
+    "commerciële","conciërge","diëtiste","drieëndertig","drieëntwintig",
+    "drieënveertig","echoën","egoïstisch","essentiële","Ethiopiër",
+    "financiële","gecreëerd","geëindigd","geëmigreerd","geëmotioneerd",
+    "geërfd","geëvenaard","geëxperimenteerd","geïllustreerd","geïmporteerde",
+    "geïnd","geïnformeerd","geïntrigeerd","hygiëne","Indonesië","industriële",
+    "ingrediënten","intuïtie","Israël","Italië","kanoën","keizerspinguïn",
+    "kopiëren","maïs","Maleisië","mozaïek","notariële","Oceanië","officiële",
+    "onderzeeër","oriëntatie","patiënt","pinguïn","pinguïns","poëzie",
+    "principiële","reünie","ruïne","Sardinië","Servië","skiën","smeuïg",
+    "Syrië","tatoeëren","terriër","tweeëndertig","tweeëntachtig",
+    "tweeëntwintig","tweeënzestig","vacuüm","variëteit","vegetariër",
+    "Venetië"
   ]),
 
-  "Eiwoord": _fw([
-    "trein","klein","meisje","rein","meid","plein","geheim","heilig",
-    "steil","weide","zeilen","feiten","leiden","peilen","reizen","sein",
-    "bereiken","bewijzen","dreinen","eindelijk","eindig","feit","geit",
-    "heiligdom","keien","kleingeld","kleigrond","lei","leidend",
-    "peil","reinigen","reinheid","steile","treinreis","treinstation",
-    "weiden","zeiltocht","eigenlijk","eigenaar","einde","eindig",
-    "geheimzinnig","heilzaam","kleinood","leidraad","meisjesachtig",
-    "richtlijn","tegelijk","verkleinen","verleiden","vermeiden",
-    "versteil","inrichten","bereiding","bewijsvoering","beïnvloeden"
+  "Trema meervoud": _fw([
+    "allergieën","amfibieën","bacteriën","biografieën","braderieën",
+    "calorieën","categorieën","chocolaterieën","drieën","economieën",
+    "energieën","epidemieën","fantasieën","filosofieën","financiën",
+    "fotokopieën","galerieën","genieën","ideeën","industrieën","jaloezieën",
+    "knieën","koloniën","kopieën","melodieën","moskeeën","oliën",
+    "pestepidemieën","poriën","reeën","sleeën","theorieën","trofeeën",
+    "tweeën","zeeën"
   ]),
 
-  "Ijwoord": _fw([
-    "zijn","bij","wij","ijs","dijk","rijk","mijn","prijs","blij","vrij",
-    "wijs","bijdrage","bijzonder","blijven","fijn","grijs","kijk","lijn",
-    "pijn","rij","vijf","vijver","wijn","wijzen","zwijgen","bijhouden",
-    "bijkomen","drijven","grijpen","krijgen","lijden","rijden","schrijven",
-    "spijt","stijgen","tijger","vrijheid","vrijwillig","wijsheid","zijden",
-    "bijdehand","bijgeloof","bijkomst","bijproduct","dijk","dijkbewaker",
-    "dijkbewaking","dijkbreuk","eindelijk","fijnmazig","grijsaard",
-    "grijskop","ijsberg","ijskoude","ijsvrij","kleindier","klijsteek",
-    "lijfwacht","mijnbouw","mijnwerker","prijslijst","prijsvraag",
-    "rijkdom","rijksweg","rijksoverheid","schrijfwijze","stijfkop",
-    "tijdelijk","tijdgeest","vrijdag","vrijgezel","vrijplaats",
-    "bakkerij","slagerij","drukkerij","smederij","brouwerij","schilderij",
-    "toverij","visserij","wasserij","nijverheid","herijken","bezwijken",
-    "grijpbaar","hijsen","knijpen","lijmen","nijpen","prijzen","rijmen",
-    "snijden","spijkeren","vijlen","wijden","zwijmel"
-  ]),
+  "Tussen-e": _fw([
+    "apetrots","aspergesoep","beregoede","beresterk","bessensap",
+    "beukenboom","bruidegom","eikenboom","elleboog","gedachtegang",
+    "glazenwasser","grenzeloos","groenteboer","groentebouillon","groenteman",
+    "groentesoep","kippenei","kippenhok","kippensoep","maneschijn",
+    "paardenbloem","paddenstoelen","pannenkoek","perenboom","pierenbad",
+    "pissebed","poppenhuis","prentenboek","pruimensap","prullenbak",
+    "puntenslijper","reuzeleuk","rijstebrij","rozengeur","ruggengraat",
+    "schattebout","schroevendraaier","secondewijzer","slangenbeet",
+    "snottebel","zonnebloem","zonnebrand","Zonnekoning","zonnepanelen",
+    "zonneschijn","zonnestelsel","zorgeloos"
+  ])
 
-  "Auwoord": _fw([
-    "augurk","auto","aula","auteur","automaat","autoriteit","augustus",
-    "applaus","fauna","gauw","laurier","lauw","rauw","saus","pauw",
-    "dauw","kauw","blauw","goudkleurig","aasgier","claus","draussen",
-    "flauw","glauw","grauw","grauwe","grauwig","klauw","klauwen",
-    "klauwig","krauw","krauwen","lauwheid","lauwtjes","mausoleum",
-    "nautisch","nauw","nauwelijks","nauwkeurig","nauwsluitend",
-    "pauper","pauselijk","rauwheid","sauteren","schrauwen",
-    "slauwig","stauros","tautologie","traurig","traumatisch",
-    "aubergine","auditorium","auteursrecht","autocorrectie",
-    "autofabrikant","autogarage","automobilist","autorisatie",
-    "autorally","autostrade","autonoom"
-  ]),
+};
 
-  "Ouwoord": _fw([
-    "oud","goud","koud","stout","zout","trouw","vrouw","bouw","schouw",
-    "gebouw","goudvis","houd","houten","koudheid","oudheid","ouderwets",
-    "ouders","stoutmoedig","touwklimmen","trouwring","vrouwelijk",
-    "zoutzee","voud","woud","inhoud","aanhoud","berouw","vertrouw",
-    "gewoud","tovenaar","bouwen","bouwwerk","bouwgrond","bouwkunst",
-    "bouwplaats","bouwproject","douw","gedouw","goudkleurig","goudsmid",
-    "goudstuk","houden","houding","houtsoort","houtvester","koudfront",
-    "koudstaal","moud","oudoom","oudtante","rouwen","rouwband","rouwstoet",
-    "schouderbreedte","schouderklop","schoudertas","schoudergewricht",
-    "stouterd","stoutheld","trouwakte","trouwbelofte","trouwboekje",
-    "trouwceremoie","trouwdag","vrouwenarts","vrouwenkiesrecht",
-    "vrouwonvriendelijk","zoutmeer","zoutoplossing","zoutwater",
-    "zoutvlakte","zouttransport","boudewijn","goudgeel","koudebloedig",
-    "loudspreker","oudgediende","overtrouw","samenbouw","woudloper"
-  ]),
-
-  "Leenwoord": _fw([
-    "bureau","champagne","chauffeur","chocolade","computer","cowboy",
-    "curry","design","disco","euro","film","folder","hobby","hotel",
-    "humor","internet","jazz","jogging","jury","karate","kiosk","laser",
-    "lift","lobby","logo","manager","menu","mode","monitor","motel",
-    "niveau","nylon","park","pauze","pizza","poster","radio","record",
-    "robot","rugby","safari","sandwich","ski","sofa","sport","steak",
-    "stress","taxi","team","ticket","tofu","training","trend","tunnel",
-    "uniform","video","villa","virus","whisky","yoga","appartement",
-    "balkon","banaan","biscuit","bonjour","budget","buffet","casino",
-    "champagne","chique","code","collega","concert","deadline","depot",
-    "detail","detective","document","dossier","envelop","espresso",
-    "festival","finale","formule","garage","genre","gratis","grill",
-    "guide","hapje","inkognito","interface","interview","jeans",
-    "karate","laptop","limousine","lounge","machine","maraton","menu",
-    "oase","opera","original","parket","passage","pedicure","penalty",
-    "persoon","piano","platform","polite","premiere","procedure",
-    "profiel","programma","project","protocol","quiz","regime","relax",
-    "routine","scenario","service","sjaal","slogan","snack","souvenir",
-    "sponsor","sprint","stadion","sticker","studio","subject","suite",
-    "sushi","symfonie","tactiek","tarief","techniek","tempo","terrein",
-    "theater","thema","ticket","toerisme","toornament","transfer","trio",
-    "turbo","type","vakantie","variete","verse","vitamine","vlam",
-    "western","wifi","winkel","workshop","xenofobie","xylofoon","zone"
-  ]),
-
+/**
+ * Originele categorienummers uit de woordenlijst.
+ * Nummer 14 (Komma-s-woord) ontbreekt – die categorie bevat alleen
+ * woorden met spaties en kan niet in het spel worden gebruikt.
+ */
+const CategoryNumbers = {
+  "Hakwoord":           1,
+  "Zingwoord":          2,
+  "Luchtwoord":         3,
+  "Plankwoord":         4,
+  "Eer-oor-eur-woord":  5,
+  "Aai-ooi-oei-woord":  6,
+  "Eeuw-ieuw-woord":    7,
+  "Langmaakwoord":      8,
+  "Voorvoegsel":        9,
+  "Klankgroepenwoord":  10,
+  "Verkleinwoord":      11,
+  "Achtervoegsel":      12,
+  "Kilowoord":          13,
+  "Komma-s-woord":      14,
+  "Centwoord":          15,
+  "Komma-s-meervoud":   16,
+  "Politiewoord":       17,
+  "Colawoord":          18,
+  "Tropisch-woord":     19,
+  "Taxiwoord":          20,
+  "Chefwoord":          21,
+  "Theewoord":          22,
+  "Caféwoord":          23,
+  "Cadeauwoord":        24,
+  "Routewoord":         25,
+  "Garagewoord":        26,
+  "Lollywoodwoord":     27,
+  "Tremawoord":         28,
+  "Militairwoord":      29,
+  "Koppelteken":        30,
+  "Trottoirwoord":      31,
+  "Tussen-e":           32,
+  "Trema meervoud":     33,
+  "Latijns voorvoegsel":34
 };

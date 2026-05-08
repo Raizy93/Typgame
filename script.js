@@ -569,9 +569,10 @@ class InputHandler {
   constructor(onChar) {
     this._onChar = onChar;
     this._handler = (e) => {
-      if (e.key.length === 1 && /[a-zA-Z]/.test(e.key)) {
+      // Accepteer: a-z, A-Z, accenten (é ë ï ü), apostrof, koppelteken, spatie
+      if (e.key.length === 1 && /[a-zA-ZéëïüÉËÏÜ'\- ]/.test(e.key)) {
         e.preventDefault();
-        this._onChar(e.key.toLowerCase());
+        this._onChar(e.key);
       }
     };
     document.addEventListener('keydown', this._handler);
@@ -835,6 +836,7 @@ class Game {
     });
 
     this._updateKbToggle();
+    this._initSpecialChars();
     this._initDifficultySelector();
     this._initCategorySelector();
 
@@ -872,6 +874,7 @@ class Game {
     this.hud.update(this.score, this.lives, this.level);
     this._updateDiffDisplay();
 
+    this._specBar.classList.remove('hidden');
     this._applyKbVisibility();
     document.getElementById('pause-btn').textContent = '⏸';
     document.getElementById('pause-btn').classList.remove('paused');
@@ -923,9 +926,10 @@ class Game {
       this.inputHandler = null;
     }
 
-    // Verberg HUD en toetsenbord
+    // Verberg HUD, toetsenbord en speciale-tekens balk
     this.hud.hide();
     this.mobileKb.hide();
+    this._specBar.classList.add('hidden');
 
     // Reset spelobjecten
     this.projectiles = [];
@@ -935,6 +939,45 @@ class Game {
     // Toon startscherm
     this.screens.showStart();
     this._drawIdle();
+  }
+
+  // ── Speciale-tekens balk ──────────────────────────────
+
+  _initSpecialChars() {
+    this._specBar  = document.getElementById('special-chars');
+    this._specBtns = {};   // char → button-element
+
+    document.querySelectorAll('.spec-btn').forEach(btn => {
+      const ch = btn.dataset.char;
+      this._specBtns[ch] = btn;
+
+      const fire = (e) => {
+        e.preventDefault();
+        btn.classList.add('pressed');
+        this._onInput(ch);
+        setTimeout(() => btn.classList.remove('pressed'), 120);
+      };
+
+      btn.addEventListener('touchstart', fire, { passive: false });
+      btn.addEventListener('mousedown',  fire);
+    });
+  }
+
+  /**
+   * Verlicht de volgende te typen speciale letter (goud).
+   * Wordt aangeroepen na elke input en elke frame-update.
+   */
+  _updateSpecBar() {
+    // Reset alle highlights
+    Object.values(this._specBtns).forEach(b => b.classList.remove('spec-next'));
+
+    const locked = this.enemySys.locked;
+    if (!locked || !locked.remaining.length) return;
+
+    const next = locked.remaining[0].toLowerCase();
+    if (this._specBtns[next]) {
+      this._specBtns[next].classList.add('spec-next');
+    }
   }
 
   // ── Moeilijkheidsgraad-selector ───────────────────────
@@ -972,11 +1015,23 @@ class Game {
     const saved    = this._loadCatSelection();
     const allNames = WordList.getCategoryNames();
 
+    // Sorteer op categorienummer (1, 2, 3 … 34); onbekende namen achteraan
+    allNames.sort((a, b) => {
+      const na = (typeof CategoryNumbers !== 'undefined' && CategoryNumbers[a]) || 999;
+      const nb = (typeof CategoryNumbers !== 'undefined' && CategoryNumbers[b]) || 999;
+      return na - nb;
+    });
+
     allNames.forEach(name => {
       const btn = document.createElement('button');
-      btn.type      = 'button';
-      btn.className = 'cat-btn' + (saved.includes(name) ? ' cat-selected' : '');
-      btn.textContent = name;
+      btn.type          = 'button';
+      btn.className     = 'cat-btn' + (saved.includes(name) ? ' cat-selected' : '');
+      btn.dataset.name  = name;   // echte sleutel voor localStorage
+
+      // Toon categorienummer als prefix (bijv. "13. Kilowoord")
+      const num = (typeof CategoryNumbers !== 'undefined' && CategoryNumbers[name]);
+      btn.textContent = num ? `${num}. ${name}` : name;
+
       btn.addEventListener('click', () => {
         btn.classList.toggle('cat-selected');
         this._saveCatSelection();
@@ -1009,7 +1064,7 @@ class Game {
 
   _saveCatSelection() {
     const selected = [...document.querySelectorAll('#category-grid .cat-btn.cat-selected')]
-      .map(b => b.textContent);
+      .map(b => b.dataset.name || b.textContent);  // dataset.name = echte categorienaam
     try {
       localStorage.setItem('typgame_cats', JSON.stringify(selected));
     } catch (_) {}
@@ -1020,6 +1075,8 @@ class Game {
   _applyKbVisibility() {
     if (this.state !== State.PLAYING) return;
     this._kbVisible ? this.mobileKb.show() : this.mobileKb.hide();
+    // Schuif speciale-tekens balk omhoog als mobiel toetsenbord zichtbaar is
+    this._specBar.classList.toggle('kb-up', this._kbVisible);
   }
 
   _updateKbToggle() {
@@ -1038,6 +1095,9 @@ class Game {
       this._fireAtEnemy(result.enemy);
     }
     // 'miss', 'hit', 'lock', 'none' – geen extra actie nodig
+
+    // Ververs highlight na elke toetsaanslag
+    this._updateSpecBar();
   }
 
   /** Stap 1: vuur kogel af en markeer vijand als geraakt. */
@@ -1110,6 +1170,7 @@ class Game {
 
     this.hud.hide();
     this.mobileKb.hide();
+    this._specBar.classList.add('hidden');
 
     if (this.inputHandler) {
       this.inputHandler.destroy();
@@ -1275,6 +1336,9 @@ class Game {
     if (this._flashAlpha > 0)  this._flashAlpha  = Math.max(0, this._flashAlpha  - dt * 2.5);
     if (this._levelUpTime > 0) this._levelUpTime = Math.max(0, this._levelUpTime - dt);
 
+    // Ververs highlight op speciale-tekens balk (bijv. bij nieuw gespawnd woord)
+    this._updateSpecBar();
+
     // Passieve overlevingsscore (1 pt/sec × level)
     this._surviveSec += dt;
     if (this._surviveSec >= 1) {
@@ -1345,12 +1409,13 @@ class Game {
     }
   }
 
-  /** Geeft de positie van de speler terug (keyboard-aware). */
+  /** Geeft de positie van de speler terug (keyboard- en speciale-balk-aware). */
   _playerPos() {
-    const kbH = this._kbVisible ? 168 : 0;
+    const kbH   = this._kbVisible ? 168 : 0;
+    const specH = 52;  // hoogte van de speciale-tekens balk
     return {
       x: this.canvas.width  / 2,
-      y: this.canvas.height - kbH - 40
+      y: this.canvas.height - kbH - specH - 40
     };
   }
 
