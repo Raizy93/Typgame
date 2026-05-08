@@ -874,7 +874,7 @@ class Game {
     this.hud.update(this.score, this.lives, this.level);
     this._updateDiffDisplay();
 
-    this._specBar.classList.remove('hidden');
+    this._specBar?.classList.remove('hidden');
     this._applyKbVisibility();
     document.getElementById('pause-btn').textContent = '⏸';
     document.getElementById('pause-btn').classList.remove('paused');
@@ -929,7 +929,7 @@ class Game {
     // Verberg HUD, toetsenbord en speciale-tekens balk
     this.hud.hide();
     this.mobileKb.hide();
-    this._specBar.classList.add('hidden');
+    this._specBar?.classList.add('hidden');
 
     // Reset spelobjecten
     this.projectiles = [];
@@ -968,6 +968,7 @@ class Game {
    * Wordt aangeroepen na elke input en elke frame-update.
    */
   _updateSpecBar() {
+    if (!this._specBtns) return;
     // Reset alle highlights
     Object.values(this._specBtns).forEach(b => b.classList.remove('spec-next'));
 
@@ -1076,7 +1077,7 @@ class Game {
     if (this.state !== State.PLAYING) return;
     this._kbVisible ? this.mobileKb.show() : this.mobileKb.hide();
     // Schuif speciale-tekens balk omhoog als mobiel toetsenbord zichtbaar is
-    this._specBar.classList.toggle('kb-up', this._kbVisible);
+    this._specBar?.classList.toggle('kb-up', this._kbVisible);
   }
 
   _updateKbToggle() {
@@ -1170,7 +1171,7 @@ class Game {
 
     this.hud.hide();
     this.mobileKb.hide();
-    this._specBar.classList.add('hidden');
+    this._specBar?.classList.add('hidden');
 
     if (this.inputHandler) {
       this.inputHandler.destroy();
