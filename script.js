@@ -1232,7 +1232,7 @@ class Game {
         this._lastSavedKey = await this.leaderboard.save(name, this.score, this._difficulty);
       }
       statusEl.textContent = 'Laden…';
-      const entries = await this.leaderboard.getTop(10);
+      const entries = await this.leaderboard.getTop(50);
       statusEl.textContent = '';
       this._renderLbEntries(listEl, entries, this._lastSavedKey);
     } catch (e) {
@@ -1257,7 +1257,7 @@ class Game {
 
     statusEl.textContent = 'Laden…';
     try {
-      const entries = await this.leaderboard.getTop(10);
+      const entries = await this.leaderboard.getTop(50);
       statusEl.textContent = '';
       this._renderLbEntries(listEl, entries, null);
     } catch (e) {
