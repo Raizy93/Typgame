@@ -539,15 +539,16 @@ class Leaderboard {
   }
 
   /** Haal de top-n scores op (hoogste eerst). */
-  async getTop(n = 10) {
+  async getTop(n = 50) {
     if (!this._ok) return [];
-    const snap = await this._ref
-      .orderByChild('score')
-      .limitToLast(n)
-      .once('value');
+    const snap = await this._ref.once('value');
     const rows = [];
-    snap.forEach(child => rows.push({ key: child.key, ...child.val() }));
-    return rows.reverse();
+    snap.forEach(child => {
+      const val = child.val();
+      if (val) rows.push({ key: child.key, ...val });
+    });
+    rows.sort((a, b) => (b.score || 0) - (a.score || 0));
+    return rows.slice(0, n);
   }
 }
 
